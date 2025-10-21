@@ -8,13 +8,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.otus.spring.dao.QuestionDao;
 import ru.otus.spring.service.IOService;
-import java.util.List;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static ru.otus.spring.service.impl.QuestionTestData.getQuestion1;
-import static ru.otus.spring.service.impl.QuestionTestData.getQuestion2;
+import static ru.otus.spring.service.impl.QuestionTestData.*;
 
 @ExtendWith(MockitoExtension.class)
 class TestServiceImplTest {
@@ -31,7 +29,7 @@ class TestServiceImplTest {
     @BeforeEach
     void setUp() {
         given(questionDao.findAll())
-        .willReturn(List.of(getQuestion1(), getQuestion2()));
+        .willReturn(getQuestionList());
     }
 
     @Test
