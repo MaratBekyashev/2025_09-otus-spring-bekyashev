@@ -1,16 +1,16 @@
 package ru.otus.spring.service.impl;
 
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 import ru.otus.spring.dao.QuestionDao;
 import ru.otus.spring.domain.Answer;
 import ru.otus.spring.domain.Question;
 import ru.otus.spring.service.IOService;
 import ru.otus.spring.service.TestService;
-
 import java.util.List;
 
 @RequiredArgsConstructor
+@Service
 public class TestServiceImpl implements TestService {
 
     private final IOService ioService;

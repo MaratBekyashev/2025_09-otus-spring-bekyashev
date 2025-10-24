@@ -1,22 +1,18 @@
 package ru.otus.spring.service.impl;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 import ru.otus.spring.service.IOService;
 import java.io.PrintStream;
 import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.IOException;
 
+@Service
+@RequiredArgsConstructor
 public class StreamsIOService implements IOService {
     private final PrintStream printStream;
 
     private final BufferedReader reader;
-
-    public StreamsIOService(PrintStream printStream, InputStream inputStream) {
-
-        this.printStream = printStream;
-        this.reader = new BufferedReader(new InputStreamReader(inputStream));
-    }
 
     @Override
     public String getLine(String hint) {
