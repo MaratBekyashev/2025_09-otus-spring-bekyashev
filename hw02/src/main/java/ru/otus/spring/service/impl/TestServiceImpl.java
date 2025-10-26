@@ -19,23 +19,46 @@ public class TestServiceImpl implements TestService {
 
     @Override
     public void executeTest() {
-        String name = ioService.getLine(">>> Please enter your Name: \n");
+        String name = ioService.getLine(">>> Please enter your name: \n");
         ioService.printLine("");
         ioService.printFormattedLine("Dear " + name + ", please answer the questions below: %n");
-        printQuestionsWithAnswers(questionDao.findAll());
+        List<Question> questions = questionDao.findAll();
+        printQuestionsWithAnswers(questions);
     }
 
-    public void printQuestionsWithAnswers(List<Question> questions) {
-        for (Question question : questions) {
+    private void printQuestionsWithAnswers(List<Question> questions) {
+        int totalQuestionCounter = 0;
+        int totalCorrectAnswersCounter = 0;
+        for (Question question: questions) {
+            totalQuestionCounter++;
             StringBuilder questionBuilder = new StringBuilder(question.text());
             questionBuilder.append("%n").append("%s%n".repeat(question.answers().size()));
-            var questionsToPrint = question
+            String[] questionsToPrint = question
                     .answers()
                     .stream()
                     .map(Answer::text)
                     .toList()
-                    .toArray();
+                    .toArray(new String[0]);
             ioService.printFormattedLine(questionBuilder.toString(), questionsToPrint);
+            String userAnswer = ioService.getLine(">>> Please enter the correct answer:");
+            List<String> correctAnswersList = getCorrectAnswersForQuestion(question);
+            if (correctAnswersList.contains(userAnswer.toLowerCase())) {
+                totalCorrectAnswersCounter++;
+                ioService.printFormattedLine("You are right!");
+            } else {
+                ioService.printFormattedLine("You are not right!");
+            }
         }
+        ioService.printFormattedLine("Testing finished. You answered " + totalCorrectAnswersCounter +
+                                      " out of " + totalQuestionCounter + " questions correctly.");
+    }
+
+    private List<String> getCorrectAnswersForQuestion(Question question) {
+        return question
+                .answers()
+                .stream()
+                .filter(Answer::isCorrect)
+                .map(e -> e.text().toLowerCase())
+                .toList();
     }
 }
