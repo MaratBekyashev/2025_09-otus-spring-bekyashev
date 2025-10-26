@@ -23,10 +23,10 @@ public class TestServiceImpl implements TestService {
         ioService.printLine("");
         ioService.printFormattedLine("Dear " + name + ", please answer the questions below: %n");
         List<Question> questions = questionDao.findAll();
-        printQuestionsWithAnswers(questions);
+        doTesting(questions);
     }
 
-    private void printQuestionsWithAnswers(List<Question> questions) {
+    private void doTesting(List<Question> questions) {
         int totalQuestionCounter = 0;
         int totalCorrectAnswersCounter = 0;
         for (Question question: questions) {
