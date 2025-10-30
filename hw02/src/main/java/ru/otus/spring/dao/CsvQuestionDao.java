@@ -2,6 +2,7 @@ package ru.otus.spring.dao;
 
 import com.opencsv.bean.CsvToBeanBuilder;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 import ru.otus.spring.config.TestFileNameProvider;
 import ru.otus.spring.dao.dto.QuestionDto;
 import ru.otus.spring.domain.Question;
@@ -14,13 +15,14 @@ import java.util.List;
 import static java.util.Objects.isNull;
 
 @RequiredArgsConstructor
+@Service
 public class CsvQuestionDao implements QuestionDao {
 
     private final TestFileNameProvider fileNameProvider;
 
     @Override
     public List<Question> findAll() {
-        String fileName = fileNameProvider.getFileName();
+        String fileName = fileNameProvider.getTestFileName();
         InputStream inputStream = getClass().getClassLoader().getResourceAsStream(fileName);
         if (isNull(inputStream)) {
             throw new QuestionReadException("Test file resource not found", new FileNotFoundException());

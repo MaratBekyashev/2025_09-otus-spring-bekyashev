@@ -12,7 +12,7 @@ import ru.otus.spring.service.IOService;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static ru.otus.spring.service.impl.QuestionTestData.*;
+import static ru.otus.spring.dao.QuestionTestData.getQuestionList;
 
 @ExtendWith(MockitoExtension.class)
 class TestServiceImplTest {

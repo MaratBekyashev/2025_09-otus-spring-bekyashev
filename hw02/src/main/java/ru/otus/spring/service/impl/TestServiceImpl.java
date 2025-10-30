@@ -2,6 +2,7 @@ package ru.otus.spring.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.otus.spring.config.TestConfig;
 import ru.otus.spring.dao.QuestionDao;
 import ru.otus.spring.domain.Answer;
 import ru.otus.spring.domain.Question;
@@ -12,6 +13,8 @@ import java.util.List;
 @RequiredArgsConstructor
 @Service
 public class TestServiceImpl implements TestService {
+
+    private final TestConfig appProperties;
 
     private final IOService ioService;
 
@@ -27,10 +30,9 @@ public class TestServiceImpl implements TestService {
     }
 
     private void doTesting(List<Question> questions) {
-        int totalQuestionCounter = 0;
+        int totalQuestionCounter = questions.size();
         int totalCorrectAnswersCounter = 0;
         for (Question question: questions) {
-            totalQuestionCounter++;
             StringBuilder questionBuilder = new StringBuilder(question.text());
             questionBuilder.append("%n").append("%s%n".repeat(question.answers().size()));
             String[] questionsToPrint = question
@@ -44,13 +46,19 @@ public class TestServiceImpl implements TestService {
             List<String> correctAnswersList = getCorrectAnswersForQuestion(question);
             if (correctAnswersList.contains(userAnswer.toLowerCase())) {
                 totalCorrectAnswersCounter++;
-                ioService.printFormattedLine("You are right!");
-            } else {
-                ioService.printFormattedLine("You are not right!");
             }
         }
-        ioService.printFormattedLine("Testing finished. You answered " + totalCorrectAnswersCounter +
-                                      " out of " + totalQuestionCounter + " questions correctly.");
+        showTestResults(totalQuestionCounter, totalCorrectAnswersCounter);
+    }
+
+    private void showTestResults (int totalQuestionQty, int rightAnswersQty) {
+        ioService.printFormattedLine("Testing finished. You answered " + rightAnswersQty +
+                " out of " + totalQuestionQty + " questions correctly.");
+        if (rightAnswersQty < this.appProperties.getRightAnswersCountToPass()) {
+            ioService.printFormattedLine("Ups! You failed the test");
+        } else {
+            ioService.printFormattedLine("Congratulations! You passed the test");
+        }
     }
 
     private List<String> getCorrectAnswersForQuestion(Question question) {
