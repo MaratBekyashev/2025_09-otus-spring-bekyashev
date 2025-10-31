@@ -5,10 +5,10 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import ru.otus.spring.service.TestRunnerService;
 
 @ComponentScan
-public class MainApp {
+public class Application {
 
     public static void main(String[] args) {
-        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(MainApp.class);
+        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(Application.class);
         TestRunnerService testRunnerService = context.getBean(TestRunnerService.class);
         testRunnerService.run();
     }

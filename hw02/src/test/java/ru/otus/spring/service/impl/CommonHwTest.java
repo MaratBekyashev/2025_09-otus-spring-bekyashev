@@ -7,7 +7,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
-import ru.otus.spring.MainApp;
+import ru.otus.spring.Application;
 import ru.otus.spring.config.AppProperties;
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -50,7 +50,7 @@ class CommonHwTest {
         });
 
         var classesContainsFieldInjectedDependenciesOrProperties =
-                provider.findCandidateComponents(MainApp.class.getPackageName());
+                provider.findCandidateComponents(Application.class.getPackageName());
 
         var classesNames = classesContainsFieldInjectedDependenciesOrProperties.stream()
                 .map(BeanDefinition::getBeanClassName).collect(Collectors.joining("%n"));

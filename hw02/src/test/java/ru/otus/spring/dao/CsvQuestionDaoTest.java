@@ -22,7 +22,7 @@ class CsvQuestionDaoTest {
     }
 
     @Test
-    @DisplayName("Должен загружать список вопросов с ответами из CSV файла")
+    @DisplayName("Интеграционный тест загрузки списка вопросов с ответами из CSV файла")
     void shouldReturnQuestionsList() {
         var actualQuestions = questionDao.findAll();
         var expectedQuestions = getQuestionList();
