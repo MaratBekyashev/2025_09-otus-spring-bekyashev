@@ -1,12 +1,12 @@
-package ru.otus.spring.dao;
+package ru.otus.hw.dao;
 
 import com.opencsv.bean.CsvToBeanBuilder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.otus.spring.config.TestFileNameProvider;
-import ru.otus.spring.dao.dto.QuestionDto;
-import ru.otus.spring.domain.Question;
-import ru.otus.spring.exceptions.QuestionReadException;
+import ru.otus.hw.config.TestFileNameProvider;
+import ru.otus.hw.dao.dto.QuestionDto;
+import ru.otus.hw.domain.Question;
+import ru.otus.hw.exceptions.QuestionReadException;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.InputStreamReader;

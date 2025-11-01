@@ -1,4 +1,4 @@
-package ru.otus.spring.service.impl;
+package ru.otus.hw.service;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,8 +7,9 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
-import ru.otus.spring.Application;
-import ru.otus.spring.config.AppProperties;
+import org.springframework.core.type.ClassMetadata;
+import ru.otus.hw.Application;
+import ru.otus.hw.config.AppProperties;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -38,7 +39,7 @@ class CommonHwTest {
     void shouldNotContainFieldInjectedDependenciesOrProperties() {
         var provider = new ClassPathScanningCandidateComponentProvider(false);
         provider.addIncludeFilter((mr, mf) -> {
-            var metaData = mr.getClassMetadata();
+            ClassMetadata metaData = mr.getClassMetadata();
             var annotationMetaData = mr.getAnnotationMetadata();
             var isTest = metaData.getClassName().endsWith("Test");
             var isInterface = metaData.isInterface();

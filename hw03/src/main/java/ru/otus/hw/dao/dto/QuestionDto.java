@@ -1,11 +1,11 @@
-package ru.otus.spring.dao.dto;
+package ru.otus.hw.dao.dto;
 
 import com.opencsv.bean.CsvBindAndSplitByPosition;
 import com.opencsv.bean.CsvBindByPosition;
 import lombok.Data;
-import ru.otus.spring.domain.Answer;
-import ru.otus.spring.domain.Question;
-import ru.otus.spring.dao.AnswerCsvConverter;
+import ru.otus.hw.domain.Question;
+import ru.otus.hw.domain.Answer;
+import ru.otus.hw.dao.AnswerCsvConverter;
 import java.util.ArrayList;
 import java.util.List;
 

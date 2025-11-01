@@ -1,4 +1,4 @@
-package ru.otus.spring.config;
+package ru.otus.hw.config;
 
 public interface TestFileNameProvider {
 

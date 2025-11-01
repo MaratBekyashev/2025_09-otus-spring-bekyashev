@@ -1,4 +1,4 @@
-package ru.otus.spring.domain;
+package ru.otus.hw.domain;
 
 import java.util.List;
 

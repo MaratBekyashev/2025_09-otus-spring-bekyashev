@@ -1,4 +1,4 @@
-package ru.otus.spring.config;
+package ru.otus.hw.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -8,7 +8,6 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 
 @Configuration
-@PropertySource("classpath:application.properties")
 public class BeansConfig {
 
     @Bean

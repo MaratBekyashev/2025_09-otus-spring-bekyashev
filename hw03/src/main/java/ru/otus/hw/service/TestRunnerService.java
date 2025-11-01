@@ -1,4 +1,4 @@
-package ru.otus.spring.service;
+package ru.otus.hw.service;
 
 public interface TestRunnerService {
 
