@@ -1,0 +1,5 @@
+# Добавить сюда своих вопросов. Эту строку надо пропустить при настройке CsvToBean (withSkipLines)
+Как следует загружать ресурсы из jar в Java?$ClassLoader#getResourceAsStream или ClassPathResource#getInputStream%true|ClassLoader#geResource#getFile + FileReader%false|Wingardium Leviosa%false
+Какой вариант является хорошим способом обработки исключения?$@SneakyThrow%false|e.printStackTrace()%false|Сделать проброс в бизнес-исключение (например, Question ReadException)%true|Игнорировать исключения%false
+Каков крайний срок выполнения домашнего задания по курсу "Разработчик на Spring Framework" в OTUS?$Одна неделя%false|Два месяца%false|До окончания курса%true|Три дня%false
+Какова основная задача контейнера IoC?$Создание необходимых объектов и управление их жизненным циклом%true|Преобразование данных в удобный для чтения вид%false|Поддержка дополнительной бизнес-логики приложения%false
