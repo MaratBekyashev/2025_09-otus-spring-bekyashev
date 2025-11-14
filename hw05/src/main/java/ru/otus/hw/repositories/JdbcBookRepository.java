@@ -95,8 +95,6 @@ public class JdbcBookRepository implements BookRepository {
                 new MapSqlParameterSource(params), keyHolder, new String[]{"id"});
 
         book.setId(keyHolder.getKeyAs(Long.class));
-
-        book.setId(keyHolder.getKeyAs(Long.class));
         return book;
     }
 
