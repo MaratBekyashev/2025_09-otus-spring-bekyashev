@@ -1,5 +1,6 @@
 package ru.otus.hw.repositories;
 
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,11 +21,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("Репозиторий на основе Jpa для работы с книгами ")
 @DataJpaTest
-@Import({BookRepositoryJpa.class})
+@Transactional
 class BookRepositoryJpaTest {
 
     @Autowired
-    private BookRepositoryJpa repository;
+    private BookRepository repository;
 
     @Autowired
     private TestEntityManager em;
@@ -109,25 +110,26 @@ class BookRepositoryJpaTest {
     private static List<Author> getDbAuthors() {
         return IntStream.range(1, 4)
                 .boxed()
-                .map(id -> new Author(id, "Author_" + id))
+                .map(id -> new Author(Long.valueOf(id), "Author_" + id))
                 .toList();
     }
 
     private static List<Genre> getDbGenres() {
         return IntStream.range(1, 7).boxed()
-                .map(id -> new Genre(id, "Genre_" + id))
+                .map(id -> new Genre(Long.valueOf(id), "Genre_" + id))
                 .toList();
     }
 
     private static List<Book> getDbBooks(List<Author> dbAuthors, List<Genre> dbGenres) {
-        return IntStream.range(1, 4)
+        var result = IntStream.range(1, 4)
                 .boxed()
-                .map(id -> new Book(id,
+                .map(id -> new Book(Long.valueOf(id),
                         "BookTitle_" + id,
                         dbAuthors.get(id - 1),
-                        dbGenres.get(id - 1)//(id - 1) * 2, (id - 1) * 2 + 2)
+                        dbGenres.get(id - 1)
                 ))
                 .toList();
+        return result;
     }
 
     private static List<Book> getDbBooks() {
@@ -139,12 +141,12 @@ class BookRepositoryJpaTest {
     private Book getNewBook() {
         Author author = em.find(Author.class, 3L);
         Genre genre = em.find(Genre.class, 3L);
-        return new Book(0, "BookTitle_5", author, genre);
+        return new Book(null, "BookTitle_5", author, genre);
     }
 
     private Book getChangeBook() {
         Author author = em.find(Author.class, 1L);
         Genre genre = em.find(Genre.class, 2L);
-        return new Book(1, "BookTitle_10500", author, genre);
+        return new Book(1L, "BookTitle_10500", author, genre);
     }
 }

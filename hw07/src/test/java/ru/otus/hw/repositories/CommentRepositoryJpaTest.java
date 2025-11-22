@@ -16,11 +16,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("Репозиторий на основе Jpa для работы с комментариями к книгам ")
 @DataJpaTest
-@Import({CommentRepositoryJpa.class})
+//@Import({CommentRepositoryJpa.class})
 class CommentRepositoryJpaTest {
 
     @Autowired
-    private CommentRepositoryJpa repository;
+    private CommentRepository repository;
 
     @Autowired
     private TestEntityManager em;
@@ -122,7 +122,7 @@ class CommentRepositoryJpaTest {
     }
 
     private Comment getNewComment(Book book) {
-        return new Comment(0, "Comment_10050", book);
+        return new Comment(null, "Comment_10050", book);
     }
 
     private Comment getChangeComment(Comment comment) {

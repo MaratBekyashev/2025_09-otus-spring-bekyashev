@@ -15,11 +15,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("Репозиторий на основе Jpa для работы с жанрами книг ")
 @DataJpaTest
-@Import({GenreRepositoryJpa.class})
+//@Import({GenreRepositoryJpa.class})
 class GenreRepositoryJpaTest {
 
     @Autowired
-    GenreRepositoryJpa repository;
+    GenreRepository repository;
 
     @Autowired
     private TestEntityManager em;
@@ -47,7 +47,7 @@ class GenreRepositoryJpaTest {
     @DisplayName("должен загружать список жанров книг по ids")
     @Test
     void shouldReturnCorrectGenresListByIds() {
-        var actualGenres = repository.findAllByIds(List.of(1L, 2L, 3L));
+        var actualGenres = repository.findAllById(List.of(1L, 2L, 3L));
         var expectedGenres = List.of(dbGenres.get(0), dbGenres.get(1), dbGenres.get(2));
 
         assertThat(actualGenres)

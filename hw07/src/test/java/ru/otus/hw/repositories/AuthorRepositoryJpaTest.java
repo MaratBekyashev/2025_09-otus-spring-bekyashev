@@ -17,10 +17,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("Репозиторий на основе Jpa для работы с авторами книг")
 @DataJpaTest
-@Import({AuthorRepositoryJpa.class})
+//@Import({AuthorRepository.class})
 class AuthorRepositoryJpaTest {
     @Autowired
-    private AuthorRepositoryJpa repository;
+    private AuthorRepository repository;
 
     private List<Author> dbAuthors;
 
@@ -56,7 +56,7 @@ class AuthorRepositoryJpaTest {
     private static List<Author> getDbAuthors() {
         var list =  IntStream.range(1, 4)
                 .boxed()
-                .map(id -> new Author(id, "Author_" + id))
+                .map(id -> new Author(Long.valueOf(id), "Author_" + id))
                 .toList();
         return list;
     }
