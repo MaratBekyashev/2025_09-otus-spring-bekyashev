@@ -57,6 +57,18 @@ class GenreRepositoryJpaTest {
         actualGenres.forEach(System.out::println);
     }
 
+    @DisplayName("должен загружать жанр по id")
+    @Test
+    void shouldReturnCorrectGenreById() {
+        var actualGenre = repository.findById(1L).get();
+        var expectedGenre = dbGenres.get(0);
+
+        assertThat(actualGenre)
+                .usingRecursiveComparison()
+                .isEqualTo(expectedGenre);
+        System.out.println(actualGenre);
+    }
+
     public List<Genre> getDbGenres() {
         var list = List.of(
                 em.find(Genre.class, 1L),
