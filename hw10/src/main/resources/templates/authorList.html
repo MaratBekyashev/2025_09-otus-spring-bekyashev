@@ -41,7 +41,7 @@
        function uploadAuthorsToPage() {
             const authorTable = document.getElementById('authors');
 
-            fetch('/api/library/author')
+            fetch('/api/authors')
                 .then(response => response.json())
                 .then(authors => authors.forEach(author => {
                     const row = authorTable.insertRow();

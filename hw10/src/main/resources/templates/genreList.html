@@ -40,7 +40,7 @@
     function uploadGenresToPage() {
         const genresTable = document.getElementById('genres');
 
-        fetch('/api/library/genre')
+        fetch('/api/genres')
             .then(response => response.json())
             .then(genres => genres.forEach(genre => {
                 const row = genresTable.insertRow();

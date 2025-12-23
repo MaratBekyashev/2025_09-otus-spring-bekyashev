@@ -78,7 +78,7 @@
     function uploadCommentsToPage() {
         const bookId = document.getElementById('book-id');
         const bookTitle = document.getElementById('book-title');
-        fetch('/api/library/book/' + bookId.value)
+        fetch('/api/books/' + bookId.value)
             .then(response => response.json())
             .then(book => {
                 bookTitle.value = book.title;
@@ -87,7 +87,7 @@
 
         const commentTable = document.getElementById('comments');
         let count = 1;
-        fetch('/api/library/book/' + bookId.value + '/comment')
+        fetch('/api/books/' + bookId.value + '/comments')
             .then(response => response.json())
             .then(comments => comments.forEach(comment => {
                 const row = commentTable.insertRow();
@@ -123,7 +123,7 @@
     }
 
     function deleteComment(pointerEvent) {
-        fetch('/api/library/book/' + pointerEvent.currentTarget.bookId + '/comment/' + pointerEvent.currentTarget.id, {
+        fetch('/api/books/comments/' + pointerEvent.currentTarget.id, {
             method: 'DELETE'})
             .then(response => location.reload())
             .catch(error => console.error(error));

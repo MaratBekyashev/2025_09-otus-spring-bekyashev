@@ -24,15 +24,4 @@ public class GenreToEditBookDto {
 
     private boolean picked;
 
-    /*public static List<GenreToEditBookDto> toDtoList(List<Genre> allGenres,
-                                                     Long currentBookGenreId) {
-
-        List<Long> allGenresIds = Optional.ofNullable(allGenres)
-                .stream()
-                .flatMap(List::stream)
-                .map(Genre::getId).toList();
-        return allGenres.stream()
-                .map(g -> new GenreToEditBookDto(g.getId(), g.getName(), allGenresIds.contains(currentBookGenreId)))
-                .toList();
-    }*/
 }

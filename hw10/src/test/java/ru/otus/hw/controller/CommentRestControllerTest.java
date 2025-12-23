@@ -68,14 +68,14 @@ class CommentRestControllerTest {
         dbBooks = BookDto.toDtoList(BookTestData.getDbBooks());
     }
 
-    @DisplayName("должен возвращать спискок комментариев для книги")
+    @DisplayName("должен возвращать список комментариев для книги")
     @ParameterizedTest
     @MethodSource("getDbBooks")
     void shouldReturnCommentList(BookDto book) throws Exception {
         List<CommentDto> expectedComments = CommentDto.toDtoList(dbMapBooksComments.get(book.getId()));
         given(commentService.findAllByBookId(book.getId())).willReturn(expectedComments);
 
-        mvc.perform(get("/api/library/book/{bookId}/comment", book.getId()))
+        mvc.perform(get("/api/books/{bookId}/comments", book.getId()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(content().json(objectMapper.writeValueAsString(expectedComments)));
@@ -88,7 +88,7 @@ class CommentRestControllerTest {
     void shouldReturnComment(CommentDto comment) throws Exception {
         given(commentService.findById(comment.getId())).willReturn(comment);
 
-        mvc.perform(get("/api/library/book/{bookId}/comment/{id}", comment.getBookId(), comment.getId()))
+        mvc.perform(get("/api/books/comments/{id}", comment.getId()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(content().json(objectMapper.writeValueAsString(comment)));
@@ -100,7 +100,7 @@ class CommentRestControllerTest {
     void shouldCreateComment() throws Exception {
         given(commentService.insert(any(CommentDto.class))).willReturn(dbNewComment);
 
-        mvc.perform(post("/api/library/book/{bookId}/comment", dbNewComment.getBookId())
+        mvc.perform(post("/api/books/comments")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dbNewComment)))
                 .andExpect(status().isOk())
@@ -114,7 +114,7 @@ class CommentRestControllerTest {
     void shouldEditComment() throws Exception {
         given(commentService.update(any(CommentDto.class))).willReturn(dbChangeComment);
 
-        mvc.perform(put("/api/library/book/{bookId}/comment/{id}",
+        mvc.perform(put("/api/books/comments",
                         dbChangeComment.getBookId(), dbChangeComment.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dbChangeComment)))
@@ -127,8 +127,7 @@ class CommentRestControllerTest {
     @Test
     @DisplayName("должен удалить комментарий к книге")
     void shouldDeleteComment() throws Exception {
-        mvc.perform(delete("/api/library/book/{bookId}/comment/{id}",
-                dbChangeComment.getBookId(), dbChangeComment.getId()))
+        mvc.perform(delete("/api/books/comments/{id}", dbChangeComment.getId()))
                 .andExpect(status().isOk());
         verify(commentService, times(1)).deleteById(dbChangeComment.getId());
     }

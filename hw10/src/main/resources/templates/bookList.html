@@ -51,7 +51,7 @@
     const genresMap = new Map();
 
     function uploadAuthors() {
-        fetch('/api/library/author')
+        fetch('/api/authors')
             .then(response => response.json())
             .then(authors => {
                 authors.forEach(author => {
@@ -73,7 +73,7 @@
     }
 
     function uploadGenres() {
-        return  fetch('/api/library/genre')
+        return  fetch('/api/genres')
             .then(response => response.json())
             .then(genres => genres.forEach(genre => {
                 genresMap.set(genre.id, genre.name);
@@ -83,7 +83,7 @@
 
     function uploadBooksToPage() {
         let count = 1;
-        return fetch('/api/library/book')
+        return fetch('/api/books')
             .then(response => response.json())
             .then(books => books.forEach(book => {
                 const row = bookTable.insertRow();
@@ -150,7 +150,7 @@
     }
 
     function deleteBook(pointerEvent) {
-        fetch('/api/library/book/' + pointerEvent.currentTarget.id, {
+        fetch('/api/books/' + pointerEvent.currentTarget.id, {
             method: 'DELETE'
         })
             .then(response => location.reload())

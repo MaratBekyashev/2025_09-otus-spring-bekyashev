@@ -78,7 +78,7 @@
    }
 
    function uploadAuthorsToPage(book) {
-       fetch('/api/library/author')
+       fetch('/api/authors')
            .then(response => response.json())
            .then(authors => {
                const authorSelect = document.getElementById('book-author');
@@ -97,7 +97,7 @@
    }
 
    function uploadGenresToPage(book) {
-       fetch('/api/library/genre')
+       fetch('/api/genres')
            .then(response => response.json())
            .then(genres => {
                const genreSelect = document.getElementById('book-genre');
@@ -119,7 +119,7 @@
        const id = bookId.value;
        const bookTitle = document.getElementById('book-title');
 
-       fetch(`/api/library/book/${id}`)
+       fetch(`/api/books/${id}`)
            .then(response => response.json())
            .then(book => {
                bookTitle.value = book.title;
@@ -139,7 +139,7 @@
        const bookDto = {id: id, title: title, author: {id: authorId, fullName: authorName}, genre:{id: genreId, name:genreName }};
 
        if (isValue(id)) {
-           fetch(`/api/library/book/${id}`, {
+           fetch(`/api/books`, {
                method: "PUT",
                headers: {
                    'Accept': 'application/json',
@@ -151,7 +151,7 @@
                    location.href = "/library/book";
                });
        } else {
-           fetch("/api/library/book", {
+           fetch("/api/books", {
                method: "POST",
                headers: {
                    'Accept': 'application/json',

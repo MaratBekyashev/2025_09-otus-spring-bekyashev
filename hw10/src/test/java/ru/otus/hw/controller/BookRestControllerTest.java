@@ -63,7 +63,7 @@ class BookRestControllerTest {
     void shouldReturnBookDtoList() throws Exception {
         given(bookService.findAll()).willReturn(dbBooks);
 
-        mvc.perform(get("/api/library/book"))
+        mvc.perform(get("/api/books"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(content().json(objectMapper.writeValueAsString(dbBooks)));
@@ -76,7 +76,7 @@ class BookRestControllerTest {
     void shouldReturnBookDto(BookDto book) throws Exception {
         given(bookService.findById(book.getId())).willReturn(book);
 
-        mvc.perform(get("/api/library/book/{id}", book.getId()))
+        mvc.perform(get("/api/books/{id}", book.getId()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(content().json(objectMapper.writeValueAsString(book)));
@@ -87,7 +87,7 @@ class BookRestControllerTest {
     @DisplayName("должен сохранить новую книгу")
     void shouldCreateBook() throws Exception {
         when(bookService.insert(any(BookDto.class))).thenReturn(newBook);
-        mvc.perform(post("/api/library/book")
+        mvc.perform(post("/api/books")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(newBook)))
                 .andDo(print())
@@ -102,7 +102,7 @@ class BookRestControllerTest {
     void shouldEditBook() throws Exception {
         given(bookService.update(any(BookDto.class))).willReturn(changeBook);
 
-        mvc.perform(put("/api/library/book/{id}", changeBook.getId())
+        mvc.perform(put("/api/books", changeBook.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(changeBook)))
                 .andDo(print())
@@ -115,7 +115,7 @@ class BookRestControllerTest {
     @Test
     @DisplayName("должен удалить книгу")
     void shouldDeleteBook() throws Exception {
-        mvc.perform(delete("/api/library/book/{id}", changeBook.getId()))
+        mvc.perform(delete("/api/books/{id}", changeBook.getId()))
                 .andExpect(status().isOk());
         verify(bookService, times(1)).deleteById(changeBook.getId());
     }

@@ -71,9 +71,7 @@
 
     function uploadCommentToPage(commentId) {
         const content = document.getElementById('comment-content');
-        const bookId = document.getElementById('book-id');
-
-        fetch('/api/library/book/' + bookId.value + '/comment/' + commentId.value)
+        fetch('/api/books/comments/' + commentId.value)
             .then(response => response.json())
             .then(comment => {
                 content.value = comment.content;
@@ -83,7 +81,7 @@
     }
 
     function uploadBooksToPage(comment) {
-        fetch('/api/library/book')
+        fetch('/api/books')
             .then(response => response.json())
             .then(books => {
                 const bookSelect = document.getElementById('comment-book');
@@ -108,7 +106,7 @@
         const commentDto = {id: id, content: content, bookId: bookId};
 
         if (isValue(id)) {
-            fetch("/api/library/book/" + bookId + "/comment/" + id, {
+            fetch("/api/books/comments", {
                 method: "PUT",
                 headers: {
                     'Accept': 'application/json',
@@ -120,7 +118,7 @@
                     location.href = "/library/book/" + bookId + "/comment";
                 });
         } else {
-            fetch("/api/library/book/" + bookId + "/comment", {
+            fetch("/api/books/comments", {
                 method: "POST",
                 headers: {
                     'Accept': 'application/json',

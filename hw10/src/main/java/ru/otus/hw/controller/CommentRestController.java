@@ -21,36 +21,31 @@ public class CommentRestController {
 
     private final CommentService commentService;
 
-    @GetMapping("/api/library/book/{bookId}/comment")
-    public ResponseEntity<List<CommentDto>> getCommentsList(@PathVariable
-                                                            Long bookId) {
+    @GetMapping("/api/books/{bookId}/comments")
+    public ResponseEntity<List<CommentDto>> getCommentsList(@PathVariable Long bookId) {
         var list = commentService.findAllByBookId(bookId);
         return ResponseEntity.ok(list);
     }
 
-    @GetMapping("/api/library/book/{bookId}/comment/{id}")
-    public ResponseEntity<CommentDto> getComment(@PathVariable Long bookId,
-                                                 @PathVariable Long id) {
+    @GetMapping("/api/books/comments/{id}")
+    public ResponseEntity<CommentDto> getComment(@PathVariable Long id) {
         CommentDto comment = commentService.findById(id);
         return ResponseEntity.ok(comment);
     }
 
-    @PutMapping("/api/library/book/{bookId}/comment/{id}")
-    public ResponseEntity<CommentDto> updateComment(@PathVariable Long bookId,
-                                                    @PathVariable Long id,
-                                                    @RequestBody CommentDto commentDto) {
+    @PutMapping("/api/books/comments")
+    public ResponseEntity<CommentDto> updateComment(@RequestBody CommentDto commentDto) {
         return ResponseEntity.ok(commentService.update(commentDto));
     }
 
-    @PostMapping("/api/library/book/{bookId}/comment")
-    public ResponseEntity<CommentDto> createComment(@PathVariable String bookId, @RequestBody CommentDto commentDto) {
+    @PostMapping("/api/books/comments")
+    public ResponseEntity<CommentDto> createComment(@RequestBody CommentDto commentDto) {
         var result = commentService.insert(commentDto);
         return ResponseEntity.ok(result);
     }
 
-    @DeleteMapping("/api/library/book/{bookId}/comment/{id}")
-    public void deleteComment(@PathVariable Long bookId,
-                              @PathVariable Long id) {
+    @DeleteMapping("/api/books/comments/{id}")
+    public void deleteComment(@PathVariable Long id) {
         commentService.deleteById(id);
     }
 }

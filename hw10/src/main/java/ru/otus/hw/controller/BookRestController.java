@@ -20,33 +20,30 @@ public class BookRestController {
 
     private final BookService bookService;
 
-    @GetMapping("/api/library/book")
+    @GetMapping("/api/books")
     public ResponseEntity<List<BookDto>> getListBooksPage() {
         var bookList = bookService.findAll();
         return ResponseEntity.ok(bookList);
     }
 
-    @GetMapping("/api/library/book/{id}")
+    @GetMapping("/api/books/{id}")
     public ResponseEntity<BookDto> getBook(@PathVariable Long id) {
         return ResponseEntity.ok(bookService.findById(id));
     }
 
-    @PutMapping("/api/library/book/{id}")
-    public ResponseEntity<BookDto> updateBook(@PathVariable Long id,
-                                              @RequestBody BookDto bookDto) {
+    @PutMapping("/api/books")
+    public ResponseEntity<BookDto> updateBook(@RequestBody BookDto bookDto) {
         var result = bookService.update(bookDto);
         return ResponseEntity.ok(result);
     }
 
-    @PostMapping("/api/library/book")
-    public ResponseEntity<BookDto> createBook(@RequestBody
-                                              BookDto bookDto) {
+    @PostMapping("/api/books")
+    public ResponseEntity<BookDto> createBook(@RequestBody BookDto bookDto) {
         var result = bookService.insert(bookDto);
-
         return ResponseEntity.ok(result);
     }
 
-    @DeleteMapping("/api/library/book/{id}")
+    @DeleteMapping("/api/books/{id}")
     public void deleteBook(@PathVariable Long id) {
         bookService.deleteById(id);
     }
