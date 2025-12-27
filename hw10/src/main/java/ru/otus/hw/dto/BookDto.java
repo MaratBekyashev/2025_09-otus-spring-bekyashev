@@ -32,6 +32,13 @@ public class BookDto {
         this.genre = book.getGenre();
     }
 
+    public static BookDto toDto(Long bookId,
+                                String title,
+                                Author author,
+                                Genre genre){
+        return new BookDto(bookId, title, author, genre);
+    }
+
     public static List<BookDto> toDtoList(List<Book> books) {
         return books.stream()
                 .map(BookDto::new)

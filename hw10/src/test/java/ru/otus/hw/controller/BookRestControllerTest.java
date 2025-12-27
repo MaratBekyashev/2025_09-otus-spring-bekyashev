@@ -84,7 +84,7 @@ class BookRestControllerTest {
     }
 
     @Test
-    @DisplayName("должен сохранить новую книгу")
+    @DisplayName("Создание книги")
     void shouldCreateBook() throws Exception {
         when(bookService.insert(any(BookDto.class))).thenReturn(newBook);
         mvc.perform(post("/api/books")
@@ -98,11 +98,11 @@ class BookRestControllerTest {
     }
 
     @Test
-    @DisplayName("должен сохранить обновленную книгу")
+    @DisplayName("Изменение книги")
     void shouldEditBook() throws Exception {
         given(bookService.update(any(BookDto.class))).willReturn(changeBook);
 
-        mvc.perform(put("/api/books", changeBook.getId())
+        mvc.perform(put("/api/books/{id}", changeBook.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(changeBook)))
                 .andDo(print())
@@ -113,7 +113,7 @@ class BookRestControllerTest {
     }
 
     @Test
-    @DisplayName("должен удалить книгу")
+    @DisplayName("Удаление книги")
     void shouldDeleteBook() throws Exception {
         mvc.perform(delete("/api/books/{id}", changeBook.getId()))
                 .andExpect(status().isOk());
