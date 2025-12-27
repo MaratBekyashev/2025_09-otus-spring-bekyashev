@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import ru.otus.hw.dto.BookDto;
+import ru.otus.hw.dto.UpdateBookDto;
 import ru.otus.hw.services.BookService;
 
 import java.util.List;
@@ -31,9 +32,11 @@ public class BookRestController {
         return ResponseEntity.ok(bookService.findById(id));
     }
 
-    @PutMapping("/api/books")
-    public ResponseEntity<BookDto> updateBook(@RequestBody BookDto bookDto) {
-        var result = bookService.update(bookDto);
+    @PutMapping("/api/books/{id}")
+    public ResponseEntity<BookDto> updateBook(@PathVariable Long id,
+                                              @RequestBody UpdateBookDto bookDto) {
+        BookDto book = BookDto.toDto(id, bookDto.getTitle(),bookDto.getAuthor(), bookDto.getGenre());
+        var result = bookService.update(book);
         return ResponseEntity.ok(result);
     }
 

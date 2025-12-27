@@ -110,12 +110,11 @@ class CommentRestControllerTest {
     }
 
     @Test
-    @DisplayName("должен сохранить обновленный комментарий к книге")
+    @DisplayName("Изменение заданного комментария")
     void shouldEditComment() throws Exception {
         given(commentService.update(any(CommentDto.class))).willReturn(dbChangeComment);
 
-        mvc.perform(put("/api/books/comments",
-                        dbChangeComment.getBookId(), dbChangeComment.getId())
+        mvc.perform(put("/api/books/comments/{id}", dbChangeComment.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dbChangeComment)))
                 .andExpect(status().isOk())

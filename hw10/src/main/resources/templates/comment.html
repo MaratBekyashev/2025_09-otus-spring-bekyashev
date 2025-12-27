@@ -103,10 +103,10 @@
         const id = document.getElementById("comment-id").value;
         const content = document.getElementById("comment-content").value;
         const bookId = document.getElementById("comment-book").value;
-        const commentDto = {id: id, content: content, bookId: bookId};
+        const commentDto = {content: content, bookId: bookId};
 
         if (isValue(id)) {
-            fetch("/api/books/comments", {
+            fetch("/api/books/comments/"+ id , {
                 method: "PUT",
                 headers: {
                     'Accept': 'application/json',

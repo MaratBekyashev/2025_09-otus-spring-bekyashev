@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import ru.otus.hw.dto.CommentDto;
+import ru.otus.hw.dto.UpdateCommentDto;
 import ru.otus.hw.exceptions.EntityNotFoundException;
 import ru.otus.hw.services.CommentService;
 
@@ -33,8 +34,10 @@ public class CommentRestController {
         return ResponseEntity.ok(comment);
     }
 
-    @PutMapping("/api/books/comments")
-    public ResponseEntity<CommentDto> updateComment(@RequestBody CommentDto commentDto) {
+    @PutMapping("/api/books/comments/{id}")
+    public ResponseEntity<CommentDto> updateComment(@PathVariable Long id,
+                                                    @RequestBody UpdateCommentDto updateComment) {
+        CommentDto commentDto = new CommentDto(id, updateComment.getContent(), updateComment.getBookId());
         return ResponseEntity.ok(commentService.update(commentDto));
     }
 
