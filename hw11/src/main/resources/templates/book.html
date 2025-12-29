@@ -136,10 +136,10 @@
        const authorName = document.getElementById("book-author").textContent;
        const genreId = document.getElementById("book-genre").value;
        const genreName = document.getElementById("book-genre").textContent;
-       const bookDto = {id: id, title: title, author: {id: authorId, fullName: authorName}, genre:{id: genreId, name:genreName }};
+       const bookDto = {title: title, author: {id: authorId, fullName: authorName}, genre:{id: genreId, name:genreName }};
 
        if (isValue(id)) {
-           fetch(`/api/books`, {
+           fetch("/api/books/" + id, {
                method: "PUT",
                headers: {
                    'Accept': 'application/json',

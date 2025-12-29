@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.otus.hw.dto.CommentDto;
+import ru.otus.hw.dto.UpdateCommentDto;
+import ru.otus.hw.exceptions.EntityNotFoundException;
 import ru.otus.hw.services.CommentService;
 
 import java.util.List;
@@ -34,9 +36,12 @@ public class CommentRestController {
         return ResponseEntity.ok(comment);
     }
 
-    @PutMapping("/api/books/comments")
-    public ResponseEntity<Mono<CommentDto>> updateComment(@RequestBody CommentDto commentDto) {
-        return ResponseEntity.ok(commentService.update(commentDto));
+    @PutMapping("/api/books/comments/{id}")
+    public ResponseEntity<Mono<CommentDto>> updateComment(@PathVariable Long id,
+                                                    @RequestBody UpdateCommentDto updateComment) {
+        CommentDto commentDto = new CommentDto(id, updateComment.getContent(), updateComment.getBookId());
+        var result = commentService.update(commentDto);
+        return ResponseEntity.ok(result);
     }
 
     @PostMapping("/api/books/comments")
