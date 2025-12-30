@@ -94,7 +94,7 @@ class BookRestControllerTest {
         BookDto changeBookDto = new BookDto(changeBook);
         when(bookService.updateBook(changeBookDto)).thenReturn(Mono.just(changeBookDto));
         webTestClient.put()
-                .uri("/api/books")
+                .uri("/api/books/{id}", changeBookDto.getId())
                 .bodyValue(changeBookDto)
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()

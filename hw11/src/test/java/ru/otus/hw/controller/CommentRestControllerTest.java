@@ -136,7 +136,7 @@ class CommentRestControllerTest {
         when(commentService.update(changeCommentDto)).thenReturn(Mono.just(changeCommentDto));
 
         webTestClient.put()
-                .uri("/api/books/comments")
+                .uri("/api/books/comments/{id}", changeComment.getId())
                 .bodyValue(changeCommentDto)
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
