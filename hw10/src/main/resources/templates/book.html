@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Edit book</title>
+    <style type="text/css">
+        body {
+            padding: 50px;
+        }
+
+        label {
+            display: inline-block;
+            width: 105px;
+        }
+
+        input:read-only {
+            background: lightgray;
+        }
+
+        .row {
+            margin-top: 10px;
+        }
+
+        #book-genres {
+            display: flex;
+            flex-direction: column;
+        }
+    </style>
+</head>
+
+<body onload="uploadDataToPage()">
+<a th:href="@{/library}" href="homePage.html">Home</a>
+<br>
+<a th:href="@{/library/book}" href="bookList.html">Book list</a>
+<br>
+<form id="book-form">
+    <h3>Book Info:</h3>
+
+    <div class="row">
+        <label for="book-id">Id:</label>
+        <input id="book-id" name="id" type="text" readonly="readonly" th:value="*{bookId}" />
+    </div>
+
+    <div class="row">
+        <label for="book-title">Title:</label>
+        <input id="book-title" name="title" type="text"/>
+    </div>
+
+    <div class="row">
+        <label for="book-author">Author:</label>
+        <select id="book-author">
+        </select>
+    </div>
+
+    <div class="row">
+        <label for="book-genre">Author:</label>
+        <select id="book-genre">
+        </select>
+    </div>
+
+    <div class="row">
+        <button type="button" onclick="saveBook()">Save</button>
+        <a href="bookList.html" th:href="@{/library/book}">
+            <button type="button">Cancel</button>
+        </a>
+    </div>
+</form>
+
+<script>
+   function uploadDataToPage() {
+       const bookId = document.getElementById('book-id');
+       if (isValue(bookId.value)) {
+           uploadBookToPage(bookId);
+        } else {
+           uploadAuthorsToPage(null);
+           uploadGenresToPage(null);
+        }
+   }
+
+   function uploadAuthorsToPage(book) {
+       fetch('/api/authors')
+           .then(response => response.json())
+           .then(authors => {
+               const authorSelect = document.getElementById('book-author');
+               authors.forEach(author => {
+                   const option = document.createElement('option');
+                   option.value = author.id;
+                   option.textContent = author.fullName;
+
+                   if (isValue(book) && author.id === book.author.id) {
+                       option.selected = true;
+                   }
+                   authorSelect.appendChild(option);
+               })
+           })
+           .catch(error => console.error(error));
+   }
+
+   function uploadGenresToPage(book) {
+       fetch('/api/genres')
+           .then(response => response.json())
+           .then(genres => {
+               const genreSelect = document.getElementById('book-genre');
+               genres.forEach(genre => {
+                   const option = document.createElement('option');
+                   option.value = genre.id;
+                   option.textContent = genre.name;
+
+                   if (isValue(book) && genre.id === book.genre.id) {
+                       option.selected = true;
+                   }
+                   genreSelect.appendChild(option);
+               })
+           })
+           .catch(error => console.error(error));
+   }
+
+   function uploadBookToPage(bookId) {
+       const id = bookId.value;
+       const bookTitle = document.getElementById('book-title');
+
+       fetch(`/api/books/${id}`)
+           .then(response => response.json())
+           .then(book => {
+               bookTitle.value = book.title;
+               uploadAuthorsToPage(book);
+               uploadGenresToPage(book);
+           })
+           .catch(error => console.error(error));
+   }
+
+   function saveBook() {
+       const id = document.getElementById("book-id").value;
+       const title = document.getElementById("book-title").value;
+       const authorId = document.getElementById("book-author").value;
+       const authorName = document.getElementById("book-author").textContent;
+       const genreId = document.getElementById("book-genre").value;
+       const genreName = document.getElementById("book-genre").textContent;
+       const bookDto = {title: title, author: {id: authorId, fullName: authorName}, genre:{id: genreId, name:genreName }};
+
+       if (isValue(id)) {
+           fetch("/api/books/" + id, {
+               method: "PUT",
+               headers: {
+                   'Accept': 'application/json',
+                   'Content-Type': 'application/json'
+               },
+               body: JSON.stringify(bookDto)})
+               .then(response => response.json())
+               .then(function () {
+                   location.href = "/library/book";
+               });
+       } else {
+           fetch("/api/books", {
+               method: "POST",
+               headers: {
+                   'Accept': 'application/json',
+                   'Content-Type': 'application/json'
+               },
+               body: JSON.stringify(bookDto)})
+               .then(response => response.json())
+               .then(function () {
+                   location.href = "/library/book";
+               });
+       }
+   }
+
+   function isValue(val){
+       return (val !== undefined && val != null && val !== '');
+   }
+</script>
+
+</body>
+</html>
