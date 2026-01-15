@@ -13,6 +13,8 @@ import ru.otus.hw.security.SecurityConfiguration;
 import ru.otus.hw.services.AuthorService;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrlPattern;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest
@@ -29,16 +31,16 @@ class AuthorControllerSecurityTest {
     @Test
     @WithMockUser("user")
     @DisplayName("Возвращает результат для авторизованного пользователя")
-    void listAuthorsPage_postivite() throws Exception{
+    void listAuthorsPage_authorizedOK() throws Exception{
         mvc.perform(get("/library/authors"))
                 .andExpect(status().isOk());
     }
 
     @DisplayName("Редирект на страницу авторизации для неавторизованного пользователя")
     @Test
-    void listAuthorsPage_negative() throws Exception {
+    void listAuthorsPage_notAuthorizedRedirect() throws Exception {
         mvc.perform(get("/library/authors"))
-                .andExpect(status().is3xxRedirection());
-
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrlPattern("**/login"));
     }
 }

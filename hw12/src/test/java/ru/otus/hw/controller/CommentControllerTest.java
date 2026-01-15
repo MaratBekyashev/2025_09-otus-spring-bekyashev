@@ -26,6 +26,7 @@ import java.util.Optional;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -61,14 +62,14 @@ class CommentControllerTest {
     }
 
     @DisplayName("должен загружать view со списком комментариев для книги")
-    @WithMockUser("user")
+    @WithMockUser()
     @ParameterizedTest
     @MethodSource("getDbBooks")
     void shouldReturnCommentListPage(Book book) throws Exception {
         given(commentService.findAllByBookId(book.getId())).willReturn(dbMapBooksComments.get(book.getId()));
         given(bookService.findById(book.getId())).willReturn(new BookDto(book));
 
-        mvc.perform(get("/library/comments").param("bookId", String.valueOf(book.getId())))
+        mvc.perform(get("/library/comments").param("bookId", String.valueOf(book.getId())).with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("commentListForBook"))
                 .andExpect(model().attributeExists("book"))
@@ -76,7 +77,7 @@ class CommentControllerTest {
     }
 
     @Test
-    @WithMockUser("user")
+    @WithMockUser()
     @DisplayName("должен загружать страницу создания комментария к книге")
     void shouldReturnCommentCreatePage() throws Exception {
         given(bookService.findAll()).willReturn(BookDto.toDtoList(dbBooks));
@@ -94,7 +95,7 @@ class CommentControllerTest {
         CommentInsertUpdateDto commentInsert = CommentInsertUpdateDto.toDto(dbNewComment);
 
         mvc.perform(post("/library/comments/create")
-                        .flashAttr("comment", commentInsert))
+                        .flashAttr("comment", commentInsert).with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/library/comments?bookId=" + commentInsert.getBookId()));
 
@@ -121,7 +122,7 @@ class CommentControllerTest {
         CommentInsertUpdateDto commentUpdate = CommentInsertUpdateDto.toDto(dbChangeComment);
 
         mvc.perform(post("/library/comments/edit/{id}", dbChangeComment.getId())
-                        .flashAttr("comment", commentUpdate))
+                        .flashAttr("comment", commentUpdate).with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/library/comments?bookId=" + commentUpdate.getBookId()));
 
@@ -133,7 +134,7 @@ class CommentControllerTest {
     @DisplayName("должен удалить комментарий к книге и сделать редирект")
     void shouldDeleteComment() throws Exception {
         mvc.perform(post("/library/comments/delete/{id}", dbChangeComment.getId())
-                        .param("bookId", String.valueOf(dbChangeComment.getBook().getId())))
+                        .param("bookId", String.valueOf(dbChangeComment.getBook().getId())).with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/library/comments?bookId=" + dbChangeComment.getBook().getId()));
 

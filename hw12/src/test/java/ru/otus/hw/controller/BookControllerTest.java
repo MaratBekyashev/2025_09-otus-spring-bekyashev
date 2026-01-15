@@ -26,6 +26,7 @@ import java.util.List;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -101,6 +102,7 @@ class BookControllerTest {
         BookInsertUpdateDto bookInsert = BookInsertUpdateDto.toDto(new BookDto(newBook));
 
         mvc.perform(post("/library/books/create")
+                .with(csrf())
                 .flashAttr("book", bookInsert))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/library/books"));
@@ -131,7 +133,8 @@ class BookControllerTest {
         BookInsertUpdateDto bookEdit = BookInsertUpdateDto.toDto(new BookDto(changeBook));
 
         mvc.perform(post("/library/books/edit/{id}", changeBook.getId())
-                        .flashAttr("book", bookEdit))
+                         .with(csrf())
+                         .flashAttr("book", bookEdit))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/library/books"));
 
@@ -142,7 +145,7 @@ class BookControllerTest {
     @WithMockUser("user")
     @DisplayName("должен удалить книгу и сделать редирект")
     void shouldDeleteBook() throws Exception {
-        mvc.perform(post("/library/books/delete/{id}", changeBook.getId()))
+        mvc.perform(post("/library/books/delete/{id}", changeBook.getId()).with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/library/books"));
 

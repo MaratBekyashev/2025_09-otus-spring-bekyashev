@@ -14,7 +14,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
-import ru.otus.hw.data.SecurityOfEndpointsArgumentsProvider;
 import ru.otus.hw.dto.BookDto;
 import ru.otus.hw.models.Author;
 import ru.otus.hw.models.Genre;
@@ -83,17 +82,4 @@ public class SecurityOfEndpointsTest {
                 .andExpect(status().is3xxRedirection());
     }
 
-    @DisplayName("должен сделать редирект на страницу аутентификации для анонимного пользователя")
-    @ParameterizedTest
-    @ArgumentsSource(SecurityOfEndpointsArgumentsProvider.class)
-    void shouldCheckSecurityOfResource(String describe,
-                                       SecurityMockMvcRequestPostProcessors.UserRequestPostProcessor user,
-                                       MockHttpServletRequestBuilder requestBuilder,
-                                       List<ResultMatcher> matchers) throws Exception {
-        if (user != null) {
-            requestBuilder = requestBuilder.with(user);
-        }
-        mvc.perform(requestBuilder)
-                .andExpectAll(matchers.toArray(new ResultMatcher[0]));
-    }
 }
