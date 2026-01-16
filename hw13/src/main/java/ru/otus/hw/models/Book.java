@@ -46,7 +46,4 @@ public class Book {
     @Column(name = "create_user")
     private String createUser;
 
-    public boolean isCreatedBy(String username) {
-        return username.equals(createUser);
-    }
 }

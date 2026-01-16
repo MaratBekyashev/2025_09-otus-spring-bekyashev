@@ -14,11 +14,12 @@ public class CommentsPolicy {
     private final CommentRepository commentRepository;
 
     public boolean isOwner(Long commentId, Authentication authentication) {
-        boolean result = false;
         if (commentId != null) {
             Comment comment = commentRepository.findById(commentId).orElseThrow();
             String username = authentication.getName();
-            result = comment.isCreatedBy(username);
+            String createUserName = comment.getCreateUser();
+
+            boolean result = createUserName.equals(username);
             return result;
         }
 

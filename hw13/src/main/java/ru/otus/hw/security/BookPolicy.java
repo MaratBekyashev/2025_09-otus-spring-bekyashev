@@ -17,11 +17,9 @@ public class BookPolicy {
         if (bookId != null) {
             Book book = bookRepository.findById(bookId).orElseThrow();
             String username = authentication.getName();
-            result = book.isCreatedBy(username);
+            String createUser = book.getCreateUser();
+            result = createUser.equals(username);
 
-            var r =  authentication.getAuthorities()
-                    .stream()
-                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
             return result;
         }
 

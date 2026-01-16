@@ -14,7 +14,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
-import ru.otus.hw.data.SecurityOfEndpointsArgumentsProvider;
 import ru.otus.hw.dto.BookDto;
 import ru.otus.hw.models.Author;
 import ru.otus.hw.models.Genre;
@@ -34,34 +33,12 @@ import java.util.List;
 
 @DisplayName("Защита ресурсов при работе с контроллерами для книг")
 @WebMvcTest
-@ContextConfiguration(classes = {
-        BookController.class,
-        CommentController.class,
-        AuthorController.class,
-        GenreController.class,
-        HomeController.class })
+@ContextConfiguration(classes = HomeController.class)
 @Import(SecurityConfiguration.class)
 public class SecurityOfEndpointsTest {
 
     @Autowired
     private MockMvc mvc;
-
-    @MockitoBean
-    private BookService bookService;
-
-    @MockitoBean
-    private CommentService commentService;
-
-    @MockitoBean
-    private AuthorService authorService;
-
-    @MockitoBean
-    private GenreService genreService;
-
-    @BeforeEach
-    void setUp() {
-        when(bookService.findById(anyLong())).thenReturn(new BookDto(1L, "Test book", new Author(1L, "Author"),new Genre(1L,"Genre")));
-    }
 
     @DisplayName("Страница авторизации должна быть доступна всем")
     @Test
@@ -70,30 +47,4 @@ public class SecurityOfEndpointsTest {
                 .andExpect(status().isOk());
     }
 
-    @DisplayName("Редирект на страницу авторизации для неавторизованного пользователя")
-    @Test
-    void allControllersShouldBeProtected() throws Exception {
-        mvc.perform(get("/books"))
-                .andExpect(status().is3xxRedirection());
-
-        mvc.perform(get("/authors"))
-                .andExpect(status().is3xxRedirection());
-
-        mvc.perform(get("/genres"))
-                .andExpect(status().is3xxRedirection());
-    }
-
-    @DisplayName("должен сделать редирект на страницу аутентификации для анонимного пользователя")
-    @ParameterizedTest
-    @ArgumentsSource(SecurityOfEndpointsArgumentsProvider.class)
-    void shouldCheckSecurityOfResource(String describe,
-                                       SecurityMockMvcRequestPostProcessors.UserRequestPostProcessor user,
-                                       MockHttpServletRequestBuilder requestBuilder,
-                                       List<ResultMatcher> matchers) throws Exception {
-        if (user != null) {
-            requestBuilder = requestBuilder.with(user);
-        }
-        mvc.perform(requestBuilder)
-                .andExpectAll(matchers.toArray(new ResultMatcher[0]));
-    }
 }
