@@ -31,7 +31,7 @@ public class JobConfig {
 
     @Bean
     public ItemReader<Book> bookReader(EntityManagerFactory emf) {
-        return new ru.otus.hw.batch.reader.CustomBookReader(emf, 10);
+        return new CustomBookReader(emf, 10);
     }
 
     @Bean

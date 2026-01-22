@@ -1,4 +1,4 @@
-package ru.otus.hw.batch.reader;
+package ru.otus.hw.job;
 
 import jakarta.persistence.EntityGraph;
 import jakarta.persistence.EntityManager;
