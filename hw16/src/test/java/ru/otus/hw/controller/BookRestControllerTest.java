@@ -1,0 +1,122 @@
+package ru.otus.hw.controller;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Getter;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+import ru.otus.hw.data.BookTestData;
+import ru.otus.hw.dto.BookDto;
+import ru.otus.hw.services.BookService;
+
+import java.util.List;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+@DisplayName("Rest контроллер для работы с книгами")
+@WebMvcTest
+@ContextConfiguration(classes = BookRestController.class)
+class BookRestControllerTest {
+
+    @Autowired
+    private MockMvc mvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @MockitoBean
+    private BookService bookService;
+
+    @Getter
+    private static List<BookDto> dbBooks;
+
+    private static BookDto newBook;
+
+    private static BookDto changeBook;
+
+    @BeforeAll
+    static void setUp() {
+        dbBooks = BookDto.toDtoList(BookTestData.getDbBooks());
+        newBook = new BookDto(BookTestData.getNewBook());
+        changeBook = new BookDto(BookTestData.getChangeBook());
+    }
+
+    @Test
+    @DisplayName("должен возвращать список книг")
+    void shouldReturnBookDtoList() throws Exception {
+        given(bookService.findAll()).willReturn(dbBooks);
+
+        mvc.perform(get("/api/books"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().json(objectMapper.writeValueAsString(dbBooks)));
+        verify(bookService, times(1)).findAll();
+    }
+
+    @ParameterizedTest
+    @MethodSource("getDbBooks")
+    @DisplayName("должен возвращать книгу по ID")
+    void shouldReturnBookDto(BookDto book) throws Exception {
+        given(bookService.findById(book.getId())).willReturn(book);
+
+        mvc.perform(get("/api/books/{id}", book.getId()))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().json(objectMapper.writeValueAsString(book)));
+        verify(bookService, times(1)).findById(book.getId());
+    }
+
+    @Test
+    @DisplayName("Создание книги")
+    void shouldCreateBook() throws Exception {
+        when(bookService.insert(any(BookDto.class))).thenReturn(newBook);
+        mvc.perform(post("/api/books")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(newBook)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().json(objectMapper.writeValueAsString(newBook)));
+        verify(bookService, times(1)).insert(any(BookDto.class));
+    }
+
+    @Test
+    @DisplayName("Изменение книги")
+    void shouldEditBook() throws Exception {
+        given(bookService.update(any(BookDto.class))).willReturn(changeBook);
+
+        mvc.perform(put("/api/books/{id}", changeBook.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(changeBook)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().json(objectMapper.writeValueAsString(changeBook)));
+        verify(bookService, times(1)).update(any(BookDto.class));
+    }
+
+    @Test
+    @DisplayName("Удаление книги")
+    void shouldDeleteBook() throws Exception {
+        mvc.perform(delete("/api/books/{id}", changeBook.getId()))
+                .andExpect(status().isOk());
+        verify(bookService, times(1)).deleteById(changeBook.getId());
+    }
+}
