@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: otus-postgres-hw18
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: otusdb
+      POSTGRES_USER: otus
+      POSTGRES_PASSWORD: otus
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
