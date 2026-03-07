@@ -1,7 +1,6 @@
 spring:
   datasource:
-    #    url: jdbc:h2:mem:maindb
-    url: jdbc:postgresql://localhost:5432/otusdb
+    url: jdbc:postgresql://localhost:5432/diploma_db
     username: otus
     password: otus
     driver-class-name: org.postgresql.Driver

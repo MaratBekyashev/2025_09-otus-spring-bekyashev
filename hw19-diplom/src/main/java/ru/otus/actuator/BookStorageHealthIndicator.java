@@ -9,12 +9,12 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class BookStorageHealthIndicator implements HealthIndicator {
 
-    private final BookRepository bookRepository;
+   // private final BookRepository bookRepository;
 
     @Override
     public Health health() {
         try {
-            long count = bookRepository.count();
+            long count = 5;// 5bookRepository.count();
 
             return Health.up()
                     .withDetail("books.count", count)

@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import ru.otus.model.User;
+import ru.otus.entity.User;
 import java.util.Collection;
 
 @RequiredArgsConstructor
@@ -12,16 +12,10 @@ public class CustomUserDetails implements UserDetails {
 
     private final User user;
 
-    //private final UserRepository userRepo;
 
-    /*@Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        var user = userRepository
-                .findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User with username %s not found".formatted(username)));
-
-        return new User(user.getUsername(), user.getPassword(), Collections.emptyList());
-    }*/
+    public User getUser() {
+        return user;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

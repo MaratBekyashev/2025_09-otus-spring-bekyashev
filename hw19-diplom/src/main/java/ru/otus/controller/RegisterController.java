@@ -9,23 +9,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.otus.model.LoginRequestDto;
+import ru.otus.model.RegisterRequestDto;
 import ru.otus.service.AuthService;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/")
 @RequiredArgsConstructor
-public class AuthController {
+public class RegisterController {
 
     private final AuthService authService;
 
-    @PostMapping("/login")
-    public String login(@RequestBody LoginRequestDto request) {
-        return authService.login(request);
-    }
-
-    @GetMapping("/encode")
-    public ResponseEntity<String> getEncoded(@RequestParam(name = "pass") String pass) {
-        return ResponseEntity.ok(authService.encodePassword(pass));
+    @PostMapping("/users")
+    public void register(@RequestBody RegisterRequestDto user) {
+        authService.registerNewUser(user);
     }
 
 }

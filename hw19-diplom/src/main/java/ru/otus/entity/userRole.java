@@ -1,4 +1,4 @@
-package ru.otus.model;
+package ru.otus.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -16,13 +16,13 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "authors")
+@Table(name = "user_roles")
 public class userRole {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private Long id;
+    @Column(name = "user_id")
+    private Long userid;
 
-    @Column(name = "full_name", nullable = false)
-    private String fullName;
+    @Column(name = "role_id", nullable = false)
+    private String roleId;
 }

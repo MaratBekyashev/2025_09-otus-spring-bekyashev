@@ -1,11 +1,11 @@
-drop table if EXISTS users;
-drop table if EXISTS roles;
 drop table if EXISTS user_roles;
-drop table if EXISTS projects;
+drop table if EXISTS roles;
 drop table if EXISTS project_members;
-drop table if EXISTS tasks;
 drop table if EXISTS task_comments;
 drop table if EXISTS audit_logs;
+drop table if EXISTS tasks;
+drop table if EXISTS projects;
+drop table if EXISTS users;
 
 create table users (
     user_id   bigint generated always as identity,
@@ -33,9 +33,9 @@ alter table user_roles add constraint user_roles_role_fk foreign key (role_id) r
 create table projects (
     project_id    bigint generated always as identity,
     name          varchar(255) not null,
-    description   varchar2(2000),
+    description   varchar(2000),
     owner_id      bigint,
-    create_date   datetime,
+    create_date   timestamp,
     constraint projects_pk primary key (project_id)
 );
 
@@ -45,7 +45,7 @@ create table project_members (
     id              bigint generated always as identity primary key,
     project_id      bigint not null,
     user_id         bigint not null,
-    role_in_project varchar2(255)
+    role_in_project varchar(255)
 );
 
 alter table project_members add constraint project_members_user_fk foreign key (user_id) references users(user_id);
@@ -58,8 +58,8 @@ create table tasks (
     status       varchar(255),
     project_id   bigint,
     user_id      bigint,
-    create_date  datetime,
-    due_date     datetime,
+    create_date  timestamp,
+    due_date     timestamp,
     constraint tasks_pk primary key (task_id)
 );
 
@@ -70,7 +70,8 @@ create table task_comments (
    comment_id   bigint generated always as identity,
    task_id      bigint not null,
    user_id      bigint not null,
-   create_date  datetime,
+   comment_text varchar(2000),
+   create_date  timestamp,
    constraint task_comments_pk primary key (comment_id)
 );
 
@@ -80,10 +81,10 @@ alter table task_comments add constraint task_comments_user_fk foreign key (user
 create table audit_logs (
     id bigint generated always as identity,
     user_id bigint not null,
-    action varchar2(2000) not null,
-    entity_type varchar2(128),
+    action varchar(2000) not null,
+    entity_type varchar(128),
     entity_id bigint,
-    create_date datetime
+    create_date timestamp default current_timestamp
 );
 
 alter table audit_logs add constraint audit_logs_user_fk foreign key (user_id) references users(user_id);
