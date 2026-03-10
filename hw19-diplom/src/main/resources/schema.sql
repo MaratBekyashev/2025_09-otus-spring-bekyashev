@@ -42,12 +42,13 @@ create table projects (
 alter table projects add constraint projects_owner_fk foreign key (owner_id) references users(user_id);
 
 create table project_members (
-    id              bigint generated always as identity primary key,
+    member_id              bigint generated always as identity primary key,
     project_id      bigint not null,
     user_id         bigint not null,
     role_in_project varchar(255)
 );
 
+ALTER TABLE project_members ADD CONSTRAINT project_members_uk unique (project_id, user_id);
 alter table project_members add constraint project_members_user_fk foreign key (user_id) references users(user_id);
 alter table project_members add constraint project_members_project_fk foreign key (project_id) references projects(project_id);
 

@@ -17,7 +17,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import ru.otus.model.ProjectRole;
+import ru.otus.model.ProjectRoleEnum;
 
 @Entity
 @Getter
@@ -30,21 +30,19 @@ public class ProjectMember {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private Long id;
-
+    @Column(name = "member_id")
+    private Long memberId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn (name = "project_id")
     private Project project;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "owner_id")
+    @JoinColumn(name = "user_id")
     private User user;
 
     @Column(name = "role_in_project")
     @Enumerated(EnumType.STRING)
-    private ProjectRole roleInProject;
-
+    private ProjectRoleEnum roleInProject;
 
 }

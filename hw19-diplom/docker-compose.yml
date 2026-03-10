@@ -16,7 +16,7 @@ services:
   #  depends_on:
   #    - postgres
   #  environment:
-  #    SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/otusdb
+  #    SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/diploma_db
   #    SPRING_DATASOURCE_USERNAME: otus
   #    SPRING_DATASOURCE_PASSWORD: otus
   #  ports:
