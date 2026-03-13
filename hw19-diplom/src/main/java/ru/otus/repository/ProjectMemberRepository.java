@@ -1,16 +1,27 @@
 package ru.otus.repository;
 
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import ru.otus.entity.ProjectMember;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface ProjectMemberRepository extends JpaRepository<ProjectMember, Long> {
 
-    Optional<ProjectMember> findByProject_ProjectIdAndUser_UserNameIgnoreCase(Long projectId, String username);
-    boolean existsByProject_ProjectIdAndUser_UserNameIgnoreCase(Long projectId, String username);
+    @EntityGraph(attributePaths = {"project"})
+    List<ProjectMember> findAllByProject_ProjectId(Long projectId);
+    Optional<ProjectMember> findByProject_ProjectIdAndUser_LoginIgnoreCase(Long projectId, String login);
+    boolean existsByProject_ProjectIdAndUser_LoginIgnoreCase(Long projectId, String login);
     Optional<ProjectMember> findByProject_ProjectIdAndUser_UserId(Long projectId, Long userId);
 
-    void deleteAllByProject_ProjectId(Long projectId);
+    @Modifying
+    @Query("""
+      delete from ProjectMember p where p.project.projectId = :project_id
+    """)
+    void deleteMembersByProjectId(@Param("project_id") Long projectId);
 
 }

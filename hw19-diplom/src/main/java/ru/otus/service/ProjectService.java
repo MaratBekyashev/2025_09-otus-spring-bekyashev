@@ -1,8 +1,8 @@
 package ru.otus.service;
-import ru.otus.dto.EditProjectDto;
-import ru.otus.dto.EditProjectMemberDto;
-import ru.otus.dto.ProjectDto;
-import ru.otus.dto.ProjectMemberDto;
+import ru.otus.dto.project.EditProjectDto;
+import ru.otus.dto.project.EditProjectMemberDto;
+import ru.otus.dto.project.ProjectDto;
+import ru.otus.dto.project.ProjectMemberDto;
 import java.util.List;
 
 public interface ProjectService {

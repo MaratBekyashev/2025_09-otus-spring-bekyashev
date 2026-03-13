@@ -2,16 +2,21 @@ package ru.otus.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import ru.otus.model.task.TaskPriorityEnum;
+import ru.otus.model.task.TaskStatusEnum;
 
 import java.time.LocalDateTime;
 
@@ -21,6 +26,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(name = "tasks")
 public class Task {
 
     @Id
@@ -35,7 +41,12 @@ public class Task {
     private String description;
 
     @Column(name = "status")
-    private String status; // TODO, IN_PROGRESS, DONE
+    @Enumerated(EnumType.STRING)
+    private TaskStatusEnum status;
+
+    @Column(name = "priority")
+    @Enumerated(EnumType.STRING)
+    private TaskPriorityEnum priority;
 
     @ManyToOne
     @JoinColumn(name = "project_id")
@@ -44,6 +55,9 @@ public class Task {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User assignee;
+
+    @Column(name = "create_user")
+    private String createUser;
 
     @Column(name = "create_date")
     private LocalDateTime createDate;

@@ -8,6 +8,8 @@ import ru.otus.entity.AuditLog;
 import ru.otus.entity.User;
 import ru.otus.repository.AuditLogRepository;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -20,13 +22,14 @@ public class AuditServiceImpl implements AuditService {
     public void log(String entityName,
                     Long entityId,
                     String action,
-                    User user) {
+                    String userLogin) {
         var auditRow = new AuditLog();
         auditRow.setId(null);
         auditRow.setAction(action);
         auditRow.setEntityType(entityName);
         auditRow.setEntityId(entityId);
-        auditRow.setUser(user);
+        auditRow.setCreateUser(userLogin);
+        auditRow.setCreateDate(LocalDateTime.now());
 
         auditRepo.save(auditRow);
     }

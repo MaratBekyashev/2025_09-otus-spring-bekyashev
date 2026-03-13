@@ -1,5 +1,6 @@
 package ru.otus.service;
 
+import ru.otus.dto.UserDto;
 import ru.otus.model.LoginRequestDto;
 import ru.otus.model.RegisterRequestDto;
 
@@ -10,4 +11,6 @@ public interface AuthService {
     void registerNewUser(RegisterRequestDto newUser);
 
     String encodePassword (String unencodedPassword);
+
+    UserDto getCurrentUser();
 }

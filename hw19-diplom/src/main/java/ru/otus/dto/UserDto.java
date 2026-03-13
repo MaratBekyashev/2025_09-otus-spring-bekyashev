@@ -16,6 +16,8 @@ public class UserDto {
 
     private Long userId;
 
+    private String login;
+
     private String userName;
 
     private String email;
@@ -23,6 +25,7 @@ public class UserDto {
     public static User toDomain (UserDto userDto) {
        return User.builder()
                .userId(userDto.getUserId())
+               .login(userDto.getLogin())
                .userName(userDto.getUserName())
                .email(userDto.getEmail())
                .build();
@@ -31,8 +34,9 @@ public class UserDto {
     public static UserDto toDto(User user) {
         return UserDto.builder()
                 .userId(user.getUserId())
+                .login(user.getLogin())
                 .userName(user.getUserName())
-                .email(builder().email)
+                .email(user.getEmail())
                 .build();
     }
 }

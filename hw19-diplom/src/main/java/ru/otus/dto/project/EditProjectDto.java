@@ -1,4 +1,4 @@
-package ru.otus.dto;
+package ru.otus.dto.project;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.otus.entity.Project;
-import ru.otus.entity.User;
 
 import java.time.LocalDateTime;
 import java.util.List;

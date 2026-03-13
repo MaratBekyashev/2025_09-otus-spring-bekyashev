@@ -4,10 +4,10 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
-import ru.otus.dto.EditProjectDto;
-import ru.otus.dto.EditProjectMemberDto;
-import ru.otus.dto.ProjectDto;
-import ru.otus.dto.ProjectMemberDto;
+import ru.otus.dto.project.EditProjectDto;
+import ru.otus.dto.project.EditProjectMemberDto;
+import ru.otus.dto.project.ProjectDto;
+import ru.otus.dto.project.ProjectMemberDto;
 import ru.otus.entity.Project;
 import ru.otus.entity.ProjectMember;
 import ru.otus.entity.User;
@@ -16,7 +16,6 @@ import ru.otus.model.ProjectRoleEnum;
 import ru.otus.repository.ProjectMemberRepository;
 import ru.otus.repository.ProjectRepository;
 import ru.otus.repository.UserRepository;
-
 import java.util.List;
 
 @Service
@@ -83,7 +82,7 @@ public class ProjectServiceImpl implements ProjectService{
     @PreAuthorize("@projectSecurityService.isUserProjectOwner(#projectId) or hasRole('ADMIN')")
     public void deleteProject(Long projectId) {
         Project project = checkAndGetProject(projectId);
-        projectMemberRepository.deleteAllByProject_ProjectId(projectId);
+        projectMemberRepository.deleteMembersByProjectId(projectId);
         projectRepository.delete(project);
     }
 
@@ -102,7 +101,7 @@ public class ProjectServiceImpl implements ProjectService{
             Project projectNew = checkAndGetProject(memberDto.getProject().getProjectId());
             member.setProject(projectNew);
         }
-        boolean memberIsAlreadyExist = projectMemberRepository.existsByProject_ProjectIdAndUser_UserNameIgnoreCase(
+        boolean memberIsAlreadyExist = projectMemberRepository.existsByProject_ProjectIdAndUser_LoginIgnoreCase(
                 projectId,
                 memberDto.getUser().getUserName());
 
@@ -122,11 +121,11 @@ public class ProjectServiceImpl implements ProjectService{
                                               EditProjectMemberDto memberDto) {
         Project project = checkAndGetProject(projectId);
         ProjectMember member = projectMemberRepository
-                .findByProject_ProjectIdAndUser_UserNameIgnoreCase(projectId, memberDto.getUser().getUserName())
+                .findByProject_ProjectIdAndUser_LoginIgnoreCase(projectId, memberDto.getUser().getLogin())
                 .orElseThrow(() -> {
-                    String msg = "Project member not found(projectId=%d, userName=%s)".formatted(
+                    String msg = "Project member not found(projectId=%d, login=%s)".formatted(
                              projectId,
-                             memberDto.getUser().getUserName());
+                             memberDto.getUser().getLogin());
                     return new EntityNotFoundException(msg);
                 });
         member.setRoleInProject(memberDto.getRoleInProject());
@@ -148,7 +147,7 @@ public class ProjectServiceImpl implements ProjectService{
     @Override
     @Transactional(readOnly = true)
     public List<ProjectMemberDto> findAllProjectMembers(Long projectId) {
-        List<ProjectMember> dataList = projectMemberRepository.findAll();
+        List<ProjectMember> dataList = projectMemberRepository.findAllByProject_ProjectId(projectId);
         var resultList =  ProjectMemberDto.toDtoList(dataList);
         return resultList;
     }
@@ -165,7 +164,7 @@ public class ProjectServiceImpl implements ProjectService{
 
     private Project checkAndGetProject(Long projectId) {
         return projectRepository
-                .findById(projectId)
+                .findByProjectId(projectId)
                 .orElseThrow(() -> new EntityNotFoundException("Project not found (%d)".formatted(projectId)));
     }
 

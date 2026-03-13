@@ -9,6 +9,7 @@ drop table if EXISTS users;
 
 create table users (
     user_id   bigint generated always as identity,
+    login     varchar(255) not null,
     user_name varchar(255) not null,
     email     varchar(255),
     password  varchar(255),
@@ -57,8 +58,10 @@ create table tasks (
     title        varchar(255) not null,
     description  varchar(255),
     status       varchar(255),
+    priority     varchar(255),
     project_id   bigint,
     user_id      bigint,
+    create_user  varchar(255),
     create_date  timestamp,
     due_date     timestamp,
     constraint tasks_pk primary key (task_id)
@@ -81,13 +84,12 @@ alter table task_comments add constraint task_comments_user_fk foreign key (user
 
 create table audit_logs (
     id bigint generated always as identity,
-    user_id bigint not null,
     action varchar(2000) not null,
     entity_type varchar(128),
     entity_id bigint,
+    create_user varchar(255) not null,
     create_date timestamp default current_timestamp
 );
 
-alter table audit_logs add constraint audit_logs_user_fk foreign key (user_id) references users(user_id);
 
 

@@ -2,7 +2,6 @@ package ru.otus.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import ru.otus.entity.AuditLog;
-import ru.otus.entity.ProjectMember;
 
 public interface AuditLogRepository extends JpaRepository<AuditLog, Long> {
 

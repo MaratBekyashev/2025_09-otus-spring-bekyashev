@@ -1,9 +1,10 @@
 package ru.otus.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,23 +13,23 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.otus.dto.CreateProjectRequestDto;
-import ru.otus.dto.EditProjectDto;
-import ru.otus.dto.EditProjectMemberDto;
-import ru.otus.dto.ProjectDto;
-import ru.otus.dto.ProjectMemberDto;
-import ru.otus.dto.UserDto;
-import ru.otus.security.CustomUserDetails;
-import ru.otus.service.ProjectServiceImpl;
+import ru.otus.model.projects.CreateProjectRequest;
+import ru.otus.dto.project.EditProjectDto;
+import ru.otus.dto.project.EditProjectMemberDto;
+import ru.otus.dto.project.ProjectDto;
+import ru.otus.dto.project.ProjectMemberDto;
+import ru.otus.model.projects.UpdateProjectRequest;
+import ru.otus.service.ProjectService;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/projects")
 @RequiredArgsConstructor
+@Validated
 @Slf4j
 public class ProjectController {
 
-    private final ProjectServiceImpl projectService;
+    private final ProjectService projectService;
 
     @GetMapping
     public ResponseEntity<List<ProjectDto>> findAllProjects(){
@@ -43,7 +44,7 @@ public class ProjectController {
     }
 
     @PostMapping
-    public ResponseEntity<ProjectDto> createProject(@RequestBody CreateProjectRequestDto request) {
+    public ResponseEntity<ProjectDto> createProject(@RequestBody @Valid CreateProjectRequest request) {
         var editProjectDto = EditProjectDto.builder()
                 .projectId(null)
                 .name(request.name())
@@ -54,20 +55,19 @@ public class ProjectController {
     }
 
     @PutMapping("/{projectId}")
-    public ResponseEntity<ProjectDto> editProject(@PathVariable Long projectId,
-                                                  @RequestBody  CreateProjectRequestDto request,
-                                                  @AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ResponseEntity<ProjectDto> editProject(@PathVariable("projectId") Long projectId,
+                                                  @RequestBody UpdateProjectRequest request) {
         var editProjectDto = EditProjectDto.builder()
                 .projectId(projectId)
                 .name(request.name())
                 .description(request.description())
                 .build();
-        ProjectDto editedPproject = projectService.editProject(editProjectDto);
-        return ResponseEntity.ok(editedPproject);
+        ProjectDto editedProject = projectService.editProject(editProjectDto);
+        return ResponseEntity.ok(editedProject);
     }
 
     @DeleteMapping("/{projectId}")
-    public void deleteProject(Long projectId) {
+    public void deleteProject(@PathVariable("projectId") Long projectId) {
         projectService.deleteProject(projectId);
     }
 
@@ -77,9 +77,9 @@ public class ProjectController {
         return ResponseEntity.ok(resultList);
     }
 
-    @GetMapping("/{projectId}/members/{userId}")
-    public ResponseEntity<ProjectMemberDto> findAllProjectMembers(@PathVariable("projectId") Long projectId,
-                                                                  @PathVariable("userId") Long userId){
+    @GetMapping("/{projectId}/members/{memberId}")
+    public ResponseEntity<ProjectMemberDto> findProjectMember(@PathVariable("projectId") Long projectId,
+                                                              @PathVariable("memberId") Long userId){
         ProjectMemberDto result = projectService.findProjectMember(projectId, userId);
         return ResponseEntity.ok(result);
     }
@@ -89,7 +89,7 @@ public class ProjectController {
                                              @RequestBody EditProjectMemberDto member) {
         EditProjectMemberDto projectMember = EditProjectMemberDto.builder()
                 .project(member.getProject())
-                .user(member.getProject().getOwner())
+                .user(member.getUser())
                 .roleInProject(member.getRoleInProject())
                 .build();
         var createdProjectMember = projectService.addProjectMember(projectId, projectMember);
@@ -97,13 +97,8 @@ public class ProjectController {
     }
 
     @PutMapping("/{projectId}/members")
-    public ProjectMemberDto editProjectMember(@PathVariable Long projectId,
+    public ProjectMemberDto editProjectMember(@PathVariable("projectId") Long projectId,
                                               @RequestBody EditProjectMemberDto projectMemberDto) {
-        EditProjectMemberDto projectMember = EditProjectMemberDto.builder()
-                .project(projectMemberDto.getProject())
-                .user(projectMemberDto.getUser())
-                .roleInProject(projectMemberDto.getRoleInProject())
-                .build();
         ProjectMemberDto result = projectService.editProjectMember(projectId, projectMemberDto);
         return result;
     }

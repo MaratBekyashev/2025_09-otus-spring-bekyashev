@@ -8,8 +8,8 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
 
     @EntityGraph("user-with-roles-entity-graph")
-    Optional<User> findByUserName(String username);
+    Optional<User> findByLogin(String login);
 
-    boolean existsByUserNameIgnoreCase(String username);
+    boolean existsByLoginIgnoreCase(String login);
 
 }

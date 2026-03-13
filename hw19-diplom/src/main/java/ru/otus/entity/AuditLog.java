@@ -13,6 +13,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @Setter
@@ -25,9 +27,8 @@ public class AuditLog {
     @Column(name = "id")
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @Column(name = "create_user", nullable = false)
+    private String createUser;
 
     @Column(name = "action", nullable = false)
     private String action;
@@ -37,5 +38,8 @@ public class AuditLog {
 
     @Column(name = "entity_id")
     private Long entityId;
+
+    @Column(name = "create_date")
+    LocalDateTime createDate;
 
 }

@@ -1,19 +1,14 @@
-package ru.otus.dto;
+package ru.otus.dto.project;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import ru.otus.dto.UserDto;
 import ru.otus.entity.Project;
 import ru.otus.entity.User;
+import ru.otus.model.IdentifableEntity;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,7 +18,7 @@ import java.util.List;
 @Builder
 @Setter
 @Getter
-public class ProjectDto {
+public class ProjectDto implements IdentifableEntity {
 
     private Long projectId;
 
@@ -38,6 +33,7 @@ public class ProjectDto {
     public static Project toDomain (ProjectDto project) {
         User owner  = User.builder()
                 .userId(project.getOwner().getUserId())
+                .login(project.getOwner().getLogin())
                 .userName(project.getOwner().getUserName())
                 .build();
 
@@ -56,6 +52,7 @@ public class ProjectDto {
 
         var owner = UserDto.builder()
                 .userId(project.getOwner().getUserId())
+                .login(project.getOwner().getLogin())
                 .userName(project.getOwner().getUserName())
                 .email(project.getOwner().getEmail())
                 .build();
@@ -72,4 +69,8 @@ public class ProjectDto {
         return projectList.stream().map(ProjectDto::toDto).toList();
     }
 
+    @Override
+    public Long getId() {
+        return this.projectId;
+    }
 }

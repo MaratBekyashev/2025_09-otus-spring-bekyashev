@@ -39,7 +39,10 @@ public class User {
     @Column(name = "user_id")
     private Long userId;
 
-    @Column(name = "user_name", unique = true, nullable = false)
+    @Column(name = "login", unique = true, nullable = false)
+    private String login;
+
+    @Column(name = "user_name")
     private String userName;
 
     @Column(name = "password")

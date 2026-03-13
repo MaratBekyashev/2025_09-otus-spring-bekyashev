@@ -1,11 +1,13 @@
-package ru.otus.dto;
+package ru.otus.dto.project;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import ru.otus.dto.UserDto;
 import ru.otus.entity.ProjectMember;
+import ru.otus.model.IdentifableEntity;
 import ru.otus.model.ProjectRoleEnum;
 
 import java.util.List;
@@ -15,7 +17,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ProjectMemberDto {
+public class ProjectMemberDto implements IdentifableEntity {
 
     private Long memberId;
 
@@ -40,6 +42,7 @@ public class ProjectMemberDto {
                 .memberId(dataItem.getMemberId())
                 .user(UserDto.toDto(dataItem.getUser()))
                 .project(ProjectDto.toDto(dataItem.getProject()))
+                .roleInProject(dataItem.getRoleInProject())
                 .build();
         return result;
     }
@@ -48,4 +51,8 @@ public class ProjectMemberDto {
         return dataList.stream().map(ProjectMemberDto::toDto).toList();
     }
 
+    @Override
+    public Long getId() {
+        return this.memberId;
+    }
 }

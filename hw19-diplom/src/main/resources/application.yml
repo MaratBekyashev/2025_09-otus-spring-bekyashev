@@ -7,9 +7,7 @@ spring:
 
   sql:
     init:
-      mode: always
-      #data-locations: data.sql
-      #schema-locations: schema.sql
+      mode: never
       schema-locations: classpath:schema.sql
       data-locations: classpath:data.sql
   jpa:
@@ -50,3 +48,10 @@ resilience4j:
       dbRetry:
         maxAttempts: 3
         waitDuration: 1s
+
+jwt:
+  jwt-token-expiration-hours: 240
+  secret-key: XigiDmwcfDxYrirbVlXTY4VW/eF8/0jIEFMGV9f3703h58ICDnGN7DXPq7yHsYbftILvX5gBFE4PdDia5bW3Ig==
+
+
+
