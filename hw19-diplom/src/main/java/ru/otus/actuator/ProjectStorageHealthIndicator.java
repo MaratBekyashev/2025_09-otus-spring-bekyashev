@@ -4,24 +4,25 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.stereotype.Component;
+import ru.otus.repository.ProjectRepository;
 
 @Component
 @RequiredArgsConstructor
-public class BookStorageHealthIndicator implements HealthIndicator {
+public class ProjectStorageHealthIndicator implements HealthIndicator {
 
-   // private final BookRepository bookRepository;
+    private final ProjectRepository projectRepository;
 
     @Override
     public Health health() {
         try {
-            long count = 5;// 5bookRepository.count();
+            long count = projectRepository.count();
 
             return Health.up()
-                    .withDetail("books.count", count)
+                    .withDetail("projects.currentCount", count)
                     .build();
         } catch (Exception ex) {
             return Health.down(ex)
-                    .withDetail("error", "Book storage is not available")
+                    .withDetail("error", "Project storage is not available")
                     .build();
         }
     }

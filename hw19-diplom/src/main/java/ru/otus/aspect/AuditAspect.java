@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -11,9 +12,6 @@ import ru.otus.annotation.Auditable;
 import ru.otus.model.IdentifableEntity;
 import ru.otus.security.CustomUserDetails;
 import ru.otus.service.AuditService;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 @Aspect
 @Component
@@ -32,59 +30,42 @@ public class AuditAspect {
         if (authentication == null) {
             return;
         }
-        Long entityId = extractEntityId(result);
+        Long entityId = extractIdentifiableEntityId(result);
 
         if (entityId == null) {
-
+            String paramName = auditable.idFieldName();
+            entityId = extractIdFromMethodArgs(joinPoint, paramName);
         }
 
-        Object[] args = joinPoint.getArgs();
-        Long entityId = extractIdFromArgs(args);
-
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-
         String userLogin = userDetails.getUser().getLogin();
-
 
         auditService.log(auditable.entity().name(), entityId, auditable.action().name(), userLogin);
     }
 
-    private Long extractEntityId(Object result) {
-
+    private Long extractIdentifiableEntityId(Object result) {
         if (result == null) {
             return null;
         }
-
-        try {
-            if (result instanceof IdentifableEntity enity) {
-                Long id = enity.getId();
-                return id;
-            }
-
-            Method method = result.getClass().getMethod("id");
-            Object id = method.invoke(result);
-            if (id instanceof Long) {
-                return (Long) id;
-            }
-        } catch (NoSuchMethodException | IllegalAccessException| InvocationTargetException ignored) {
-            var i=0;
+        if (result instanceof IdentifableEntity enity) {
+            Long id = enity.getId();
+            return id;
         }
-
         return null;
     }
 
-    private Long extractIdFromArgs(Object[] args) {
+    private Long extractIdFromMethodArgs(JoinPoint joinPoint, String paramName) {
+        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
 
-        for (Object arg : args) {
-
-            if (arg instanceof Long) {
-                return (Long) arg;
+        String[] paramNames = signature.getParameterNames();
+        Object[] args = joinPoint.getArgs();
+        for (var i = 0; i < paramNames.length; i++){
+            if (paramName.equals(paramNames[i])) {
+                if (args[i] instanceof Long paramValue) {
+                    return  paramValue;
+                }
             }
-
-
-
         }
-
         return null;
     }
 }

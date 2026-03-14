@@ -1,15 +1,15 @@
-package ru.otus.service;
+package ru.otus.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import ru.otus.repository.ProjectMemberRepository;
 import ru.otus.repository.ProjectRepository;
-import ru.otus.security.CustomUserDetails;
+//import ru.otus.security.CustomUserDetails;
 
-@Service("projectSecurityService")
+@Service("projectPolicy")
 @RequiredArgsConstructor
-public class ProjectSecurityService {
+public class ProjectPolicy {
 
     private final ProjectRepository projectRepository;
     private final ProjectMemberRepository projectMemberRepository;
@@ -24,7 +24,8 @@ public class ProjectSecurityService {
 
     public boolean isUserProjectMember(Long projectId) {
         String username = getPrincipal().getUsername();
-        return projectMemberRepository.existsByProject_ProjectIdAndUser_LoginIgnoreCase(projectId, username);
+        var result = projectMemberRepository.existsByProject_ProjectIdAndUser_LoginIgnoreCase(projectId, username);
+        return result;
     }
 
     private CustomUserDetails getPrincipal() {

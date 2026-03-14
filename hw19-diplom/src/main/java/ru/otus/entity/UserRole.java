@@ -17,7 +17,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Entity
 @Table(name = "user_roles")
-public class userRole {
+public class UserRole {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")

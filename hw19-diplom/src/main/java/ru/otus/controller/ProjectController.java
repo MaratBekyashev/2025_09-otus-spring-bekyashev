@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import ru.otus.dto.project.CreateProjectDto;
 import ru.otus.model.projects.CreateProjectRequest;
 import ru.otus.dto.project.EditProjectDto;
 import ru.otus.dto.project.EditProjectMemberDto;
@@ -45,13 +46,12 @@ public class ProjectController {
 
     @PostMapping
     public ResponseEntity<ProjectDto> createProject(@RequestBody @Valid CreateProjectRequest request) {
-        var editProjectDto = EditProjectDto.builder()
-                .projectId(null)
+        var createProjectDto = CreateProjectDto.builder()
                 .name(request.name())
                 .description(request.description())
                 .build();
-        ProjectDto createdProject = projectService.createProject(editProjectDto);
-        return ResponseEntity.ok(createdProject);
+        ProjectDto response = projectService.createProject(createProjectDto);
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{projectId}")

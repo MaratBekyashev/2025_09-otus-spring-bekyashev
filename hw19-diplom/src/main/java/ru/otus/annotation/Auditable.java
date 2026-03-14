@@ -16,6 +16,6 @@ public @interface Auditable {
 
     AuditEntityTypeEnum entity();
 
-    String idFieldName() ;
+    String idFieldName() default "";
 
 }

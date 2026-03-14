@@ -11,7 +11,7 @@ import ru.otus.repository.AuditLogRepository;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/audit")
+@RequestMapping("/api/audit")
 public class AuditController {
 
     private final AuditLogRepository auditLogRepository;

@@ -11,15 +11,16 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data19
 
-  #app:
-  #  build: .
-  #  depends_on:
-  #    - postgres
-  #  environment:
-  #    SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/diploma_db
-  #    SPRING_DATASOURCE_USERNAME: otus
-  #    SPRING_DATASOURCE_PASSWORD: otus
-  #  ports:
-  #    - "8080:8080"
+  app:
+    build: .
+    container_name: taskmanager-app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/diploma_db
+      SPRING_DATASOURCE_USERNAME: otus
+      SPRING_DATASOURCE_PASSWORD: otus
 volumes:
   pgdata:

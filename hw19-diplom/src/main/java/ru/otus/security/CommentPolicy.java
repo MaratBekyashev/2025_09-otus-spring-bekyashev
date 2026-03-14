@@ -1,4 +1,4 @@
-package ru.otus.service;
+package ru.otus.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -6,9 +6,9 @@ import org.springframework.stereotype.Service;
 import ru.otus.repository.TaskCommentRepository;
 import ru.otus.security.CustomUserDetails;
 
-@Service("commentSecurityService")
+@Service("commentPolicy")
 @RequiredArgsConstructor
-public class CommentSecurityService {
+public class CommentPolicy {
 
     private final TaskCommentRepository commentRepository;
 

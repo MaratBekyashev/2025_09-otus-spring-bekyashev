@@ -1,6 +1,10 @@
 package ru.otus.service;
 
-import lombok.RequiredArgsConstructor;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -10,7 +14,9 @@ import ru.otus.dto.task.TaskResponseDto;
 import ru.otus.entity.Project;
 import ru.otus.entity.Task;
 import ru.otus.entity.User;
+import ru.otus.exception.CommonBusinessException;
 import ru.otus.exception.EntityNotFoundException;
+import ru.otus.exception.ServiceNotAvailableException;
 import ru.otus.model.AuditActionEnum;
 import ru.otus.model.AuditEntityTypeEnum;
 import ru.otus.model.task.TaskPriorityEnum;
@@ -23,45 +29,102 @@ import ru.otus.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
+@Slf4j
 public class TaskServiceImpl implements TaskService {
 
     private final TaskRepository taskRepository;
+
     private final ProjectRepository projectRepository;
+
     private final UserRepository userRepository;
 
     private final AuthService authService;
 
+    private final Counter tasksCreated;
+
+    public TaskServiceImpl(TaskRepository taskRepository,
+                           ProjectRepository projectRepository,
+                           UserRepository userRepository,
+                           AuthService authService,
+                           MeterRegistry registry) {
+        this.taskRepository = taskRepository;
+        this.projectRepository = projectRepository;
+        this.userRepository = userRepository;
+        this.authService = authService;
+        this.tasksCreated = Counter
+                .builder("tasks.currentCount")
+                .description("Quantity of active tasks")
+                .register(registry);
+    }
+
     @Override
+    @Transactional(readOnly = true)
+    @Retry(name = "dbRetry")
+    @CircuitBreaker(name = "dbCircuitBreaker", fallbackMethod = "fallbackTaskSearch")
     public List<TaskResponseDto> taskSearch(TaskSearchFilter filter) {
         Specification<Task> spec = TaskSpecification.build(filter);
         List<Task> dataList = taskRepository.findAll(spec);
         return TaskResponseDto.toDtoList(dataList);
     }
 
-    @Transactional(readOnly = true)
+    private List<TaskResponseDto> fallbackTaskSearch(TaskSearchFilter filter,
+                                                     Throwable ex) throws ServiceNotAvailableException {
+        if (ex instanceof CommonBusinessException e) {
+            throw e;
+        }
+        log.error("Fallback triggered for taskSearch(filter={})", filter, ex);
+        throw new ServiceNotAvailableException("Database is temporarily unavailable");
+    }
+
     @Override
+    @Transactional(readOnly = true)
+    @Retry(name = "dbRetry")
+    @CircuitBreaker(name = "dbCircuitBreaker", fallbackMethod = "fallbackGetProjectTasks")
     public List<TaskResponseDto> getProjectTasks(Long projectId) {
         List<Task> dataList = taskRepository.findByProject_ProjectId(projectId);
         var resultList = TaskResponseDto.toDtoList(dataList);
         return resultList;
     }
 
+    private List<TaskResponseDto> fallbackGetProjectTasks(Long projectId,
+                                                         Throwable ex) throws ServiceNotAvailableException {
+        if (ex instanceof CommonBusinessException e) {
+            throw e;
+        }
+        log.error("Fallback triggered for getProjectTasks(projectId={})", projectId, ex);
+        throw new ServiceNotAvailableException("Database is temporarily unavailable");
+    }
+
+    @Override
     @Transactional(readOnly = true)
+    @Retry(name = "dbRetry")
+    @CircuitBreaker(name = "dbCircuitBreaker", fallbackMethod = "fallbackGetTask")
     public TaskResponseDto getTask(Long taskId) {
         var task = taskRepository
                 .findById(taskId)
-                .orElseThrow(() -> new RuntimeException("Task not found(taskId=%s)".formatted(taskId)));
+                .orElseThrow(() -> new EntityNotFoundException("Task not found(taskId=%s)".formatted(taskId)));
         var result = TaskResponseDto.toDto(task);
         return result;
     }
 
+    private List<TaskResponseDto> fallbackGetTask(Long taskId,
+                                                  Throwable ex) throws ServiceNotAvailableException {
+        if (ex instanceof CommonBusinessException e) {
+            throw e;
+        }
+        log.error("Fallback triggered for getTask(taskId={})", taskId, ex);
+        throw new ServiceNotAvailableException("Database is temporarily unavailable");
+    }
+
     @Transactional
     @Override
-    @PreAuthorize("@projectSecurityService.isUserProjectMember(#projectId)")
-    @Auditable(action = AuditActionEnum.CREATED, entity = AuditEntityTypeEnum.TASK, idFieldName = "taskId")
+    @PreAuthorize("@projectPolicy.isUserProjectMember(#projectId)")
+    @Auditable(action = AuditActionEnum.CREATED, entity = AuditEntityTypeEnum.TASK)
+    @Retry(name = "dbRetry")
+    @CircuitBreaker(name = "dbCircuitBreaker", fallbackMethod = "fallbackCreateTask")
     public TaskResponseDto createTask(Long projectId,
                                       String title,
                                       String description,
@@ -70,14 +133,14 @@ public class TaskServiceImpl implements TaskService {
                                       LocalDateTime dueDate) {
         Project project = projectRepository
                 .findById(projectId)
-                .orElseThrow(() -> new RuntimeException("Project not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Project not found(projectId=%d)".formatted(projectId)));
 
         User assignee = null;
 
         if (assigneeId != null) {
             assignee = userRepository
                     .findById(assigneeId)
-                    .orElseThrow(() -> new RuntimeException("User not found"));
+                    .orElseThrow(() -> new EntityNotFoundException("User not found(userId=%d)".formatted(assigneeId)));
         }
 
         Task task = Task.builder()
@@ -94,15 +157,32 @@ public class TaskServiceImpl implements TaskService {
                 .build();
 
         taskRepository.save(task);
-
+        this.tasksCreated.increment(1);
         var result = TaskResponseDto.toDto(task);
         return result;
     }
 
-    @Transactional
+    private List<TaskResponseDto> fallbackCreateTask(Long projectId,
+                                                     String title,
+                                                     String description,
+                                                     TaskPriorityEnum priority,
+                                                     Long assigneeId,
+                                                     LocalDateTime dueDate,
+                                                     Throwable ex) throws ServiceNotAvailableException {
+        if (ex instanceof CommonBusinessException e) {
+            throw e;
+        }
+        log.error("Fallback triggered for createTask(projectId={}, title={}, description={}, priority={})",
+                projectId, title, description, priority, ex);
+        throw new ServiceNotAvailableException("Database is temporarily unavailable");
+    }
+
     @Override
-    @PreAuthorize("@taskSecurityService.isUserTaskOwner(#taskId) or hasRole('ADMIN')")
-    @Auditable(action = AuditActionEnum.EDITED, entity = AuditEntityTypeEnum.TASK, idFieldName = "taskId")
+    @Transactional
+    @PreAuthorize("@taskPolicy.isUserTaskOwner(#taskId) or hasRole('ADMIN')")
+    @Auditable(action = AuditActionEnum.EDITED, entity = AuditEntityTypeEnum.TASK)
+    @Retry(name = "dbRetry")
+    @CircuitBreaker(name = "dbCircuitBreaker", fallbackMethod = "fallbackUpdateTask")
     public TaskResponseDto updateTask(Long taskId,
                                       String title,
                                       String description,
@@ -114,29 +194,66 @@ public class TaskServiceImpl implements TaskService {
                 .findById(taskId)
                 .orElseThrow(() -> new EntityNotFoundException(("Task not found(taskId=%d)".formatted(taskId))));
 
-        task.setTitle(title);
-        task.setDescription(description);
-        task.setStatus(status);
-        task.setPriority(priority);
-        task.setDueDate(dueDate);
-
+        if (!Optional.ofNullable(title).orElse("").isEmpty()) {
+            task.setTitle(title);
+        }
+        if (!Optional.ofNullable(description).orElse("").isEmpty()) {
+            task.setDescription(description);
+        }
+        if (status != null) {
+            task.setStatus(status);
+        }
+        if (priority != null) {
+            task.setPriority(priority);
+        }
+        if (dueDate != null) {
+            task.setDueDate(dueDate);
+        }
         if (assigneeId != null) {
             User assignee = userRepository
                     .findById(assigneeId)
                     .orElseThrow(() -> new EntityNotFoundException("User not found(userId=%d)".formatted(assigneeId)));
             task.setAssignee(assignee);
         }
-
         taskRepository.save(task);
-
         return TaskResponseDto.toDto(task);
     }
 
-    @Transactional
+    private List<TaskResponseDto> fallbackUpdateTask(Long taskId,
+                                                     String title,
+                                                     String description,
+                                                     TaskStatusEnum status,
+                                                     TaskPriorityEnum priority,
+                                                     Long assigneeId,
+                                                     LocalDateTime dueDate,
+                                                     Throwable ex) throws ServiceNotAvailableException {
+        if (ex instanceof CommonBusinessException e) {
+            throw e;
+        }
+        log.error("Fallback triggered for updateTask(taskId={}, title={}, description={}, status={}, priority={}"+
+                "assigneeId={}, dueDate={})",
+                taskId, title, description, status, priority, assigneeId, dueDate, ex);
+        throw new ServiceNotAvailableException("Database is temporarily unavailable");
+    }
+
     @Override
-    @PreAuthorize("@taskSecurityService.isUserTaskOwner(#taskId) or hasRole('ADMIN')")
+    @Transactional
+    @PreAuthorize("@taskPolicy.isUserTaskOwner(#taskId) or hasRole('ADMIN')")
     @Auditable(action = AuditActionEnum.DELETED, entity = AuditEntityTypeEnum.TASK, idFieldName = "taskId")
+    @Retry(name = "dbRetry")
+    @CircuitBreaker(name = "dbCircuitBreaker", fallbackMethod = "fallbackDeleteTask")
     public void deleteTask(Long taskId) {
         taskRepository.deleteById(taskId);
+        this.tasksCreated.increment(-1);
     }
+
+    private List<TaskResponseDto> fallbackDeleteTask(Long taskId,
+                                                     Throwable ex) throws ServiceNotAvailableException {
+        if (ex instanceof CommonBusinessException e) {
+            throw e;
+        }
+        log.error("Fallback triggered for updateTask(taskId={})", taskId, ex);
+        throw new ServiceNotAvailableException("Database is temporarily unavailable");
+    }
+
 }

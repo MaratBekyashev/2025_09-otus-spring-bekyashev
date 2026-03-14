@@ -2,8 +2,10 @@ package ru.otus.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.otus.dto.UserDto;
@@ -41,7 +43,15 @@ public class AuthServiceImpl implements AuthService {
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new RuntimeException("Invalid password");
         }
-        //SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        /*UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        UsernamePasswordAuthenticationToken auth =
+                new UsernamePasswordAuthenticationToken(
+                        userDetails,
+                        null,
+                        userDetails.getAuthorities());
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);*/
         var token = jwtUtil.generateToken(request.getLogin());
         return token;
     }

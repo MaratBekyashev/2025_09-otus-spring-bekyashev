@@ -7,7 +7,7 @@ spring:
 
   sql:
     init:
-      mode: never
+      mode: always
       schema-locations: classpath:schema.sql
       data-locations: classpath:data.sql
   jpa:
@@ -25,6 +25,7 @@ server:
 management:
   endpoints:
     web:
+      base-path: /api/actuator
       exposure:
         include: health, metrics, logfile
   endpoint:
@@ -48,6 +49,8 @@ resilience4j:
       dbRetry:
         maxAttempts: 3
         waitDuration: 1s
+        ignoreExceptions:
+          - ru.otus.exception.CommonBusinessException
 
 jwt:
   jwt-token-expiration-hours: 240

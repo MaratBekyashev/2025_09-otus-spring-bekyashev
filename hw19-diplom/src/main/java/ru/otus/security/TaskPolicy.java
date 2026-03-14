@@ -1,17 +1,14 @@
-package ru.otus.service;
+package ru.otus.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import ru.otus.entity.User;
 import ru.otus.repository.TaskRepository;
 import ru.otus.security.CustomUserDetails;
 
-import java.util.Optional;
-
-@Service("taskSecurityService")
+@Service("taskPolicy")
 @RequiredArgsConstructor
-public class TaskSecurityService {
+public class TaskPolicy {
 
     private final TaskRepository taskRepository;
 

@@ -1,5 +1,6 @@
 package ru.otus.dto.project;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,17 +18,16 @@ import java.util.List;
 @Setter
 @Getter
 @ToString
-public class EditProjectDto {
+public class CreateProjectDto {
 
-    private Long projectId;
-
+    @NotBlank(message = "Имя проекта должно быть указано")
     private String name;
 
     private String description;
 
-    public static Project toDomain (EditProjectDto projectDto) {
+    public static Project toDomain (CreateProjectDto projectDto) {
         var result = Project.builder()
-                .projectId(projectDto.getProjectId())
+                .projectId(null)
                 .name(projectDto.getName())
                 .description(projectDto.getDescription())
                 .createDate(LocalDateTime.now())
@@ -35,18 +35,18 @@ public class EditProjectDto {
         return result;
     }
 
-    public static EditProjectDto toDto (Project project) {
-        var result = new EditProjectDto();
+    public static CreateProjectDto toDto (Project project) {
+        var result = new CreateProjectDto();
 
-        result.setProjectId(project.getProjectId());
+        //result.setProjectId(project.getProjectId());
         result.setName(project.getName());
         result.setDescription(project.getDescription());
 
         return result;
     }
 
-    public static List<EditProjectDto> toDtoList (List<Project> projectList) {
-        return projectList.stream().map(EditProjectDto::toDto).toList();
+    public static List<CreateProjectDto> toDtoList (List<Project> projectList) {
+        return projectList.stream().map(CreateProjectDto::toDto).toList();
     }
 
 }

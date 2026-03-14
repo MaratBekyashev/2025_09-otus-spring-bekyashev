@@ -9,7 +9,18 @@ services:
       POSTGRES_USER: otus
       POSTGRES_PASSWORD: otus
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data-18
 
+  app:
+    build: .
+    container_name: taskmanager-app-hw18
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/otusdb
+      SPRING_DATASOURCE_USERNAME: otus
+      SPRING_DATASOURCE_PASSWORD: otus
 volumes:
   pgdata:

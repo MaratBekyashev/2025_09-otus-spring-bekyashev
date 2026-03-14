@@ -7,9 +7,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.otus.security.AuthTokenProcessResult;
-
 import java.security.Key;
-import java.time.LocalDateTime;
 import java.util.Date;
 
 @Component
