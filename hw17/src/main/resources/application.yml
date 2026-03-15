@@ -1,0 +1,53 @@
+spring:
+  datasource:
+    #    url: jdbc:h2:mem:maindb
+    url: jdbc:postgresql://localhost:5432/otusdb
+    username: otus
+    password: otus
+    driver-class-name: org.postgresql.Driver
+
+  sql:
+    init:
+      mode: always
+      #data-locations: data.sql
+      #schema-locations: schema.sql
+      schema-locations: classpath:schema.sql
+      data-locations: classpath:data.sql
+  jpa:
+    open-in-view: false
+    generate-ddl: false
+    hibernate:
+      ddl-auto: none
+    defer-datasource-initialization: true
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+server:
+  port: 8080
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, metrics, logfile
+  endpoint:
+    health:
+      show-details: always
+logging:
+  file:
+    name: logs/app.log
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      dbCircuitBreaker:
+        slidingWindowSize: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 3
+
+  retry:
+    instances:
+      dbRetry:
+        maxAttempts: 3
+        waitDuration: 1s
