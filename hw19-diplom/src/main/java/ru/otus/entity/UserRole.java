@@ -24,5 +24,5 @@ public class UserRole {
     private Long userid;
 
     @Column(name = "role_id", nullable = false)
-    private String roleId;
+    private Long roleId;
 }

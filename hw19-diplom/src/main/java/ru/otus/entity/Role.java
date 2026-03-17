@@ -12,18 +12,20 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import ru.otus.model.RoleNameEnum;
+
 import java.util.HashSet;
 import java.util.Set;
 
-@Entity
-@Table (name = "roles")
 @Getter
 @Setter
 @NoArgsConstructor
+@Entity
+@Table (name = "roles")
 public class Role {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "role_id")
     private Long roleId;
 

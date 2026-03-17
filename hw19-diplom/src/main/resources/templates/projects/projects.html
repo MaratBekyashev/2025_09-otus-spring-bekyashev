@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Projects</title>
+</head>
+<body>
+
+<h1>Projects</h1>
+
+<table id="projectsTable">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Description</th>
+    </tr>
+    </thead>
+    <tbody>
+    <!-- сюда будем динамически вставлять строки -->
+    </tbody>
+</table>
+
+<script>
+    async function loadProjects() {
+        const response = await fetch('/api/projects', {
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('token') // если нужен JWT
+            }
+        });
+        const projects = await response.json();
+
+        const tbody = document.querySelector('#projectsTable tbody');
+        tbody.innerHTML = ''; // очищаем
+
+        projects.forEach(p => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${p.id}</td>
+                <td>${p.name}</td>
+                <td>${p.description}</td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+
+    loadProjects();
+</script>
+
+</body>
+</html>

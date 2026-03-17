@@ -150,7 +150,6 @@ public class ProjectServiceImpl implements ProjectService{
         Project project = checkAndGetProject(projectId);
         projectMemberRepository.deleteMembersByProjectId(projectId);
         projectRepository.delete(project);
-        projectsCreated.increment(-1);
     }
 
     private void fallbackDeleteProject(Long projectId, Throwable ex)
@@ -276,7 +275,7 @@ public class ProjectServiceImpl implements ProjectService{
     public ProjectMemberDto findProjectMember(Long projectId, Long userId) {
         ProjectMember member = projectMemberRepository
                 .findByProject_ProjectIdAndUser_UserId(projectId, userId)
-                .orElseThrow(() ->new EntityNotFoundException("Member not found(userId=%d)".formatted(userId)));
+                .orElseThrow(() -> new EntityNotFoundException("Member not found(userId=%d)".formatted(userId)));
        var result = ProjectMemberDto.toDto(member);
        return result;
     }

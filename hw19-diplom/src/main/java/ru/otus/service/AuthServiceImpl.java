@@ -2,15 +2,15 @@ package ru.otus.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.otus.dto.UserDto;
 import ru.otus.entity.Role;
-import ru.otus.entity.RoleNameEnum;
+import ru.otus.exception.UserAlreadyExistException;
+import ru.otus.model.AuthDto;
+import ru.otus.model.RoleNameEnum;
 import ru.otus.entity.User;
 import ru.otus.model.LoginRequestDto;
 import ru.otus.model.RegisterRequestDto;
@@ -28,15 +28,12 @@ public class AuthServiceImpl implements AuthService {
 
     private final RoleRepository roleRepository;
 
-    //private final AuthenticationManager authenticationManager;
-
     private final PasswordEncoder passwordEncoder;
 
     private final JwtUtil jwtUtil;
 
-
     @Override
-    public String login(LoginRequestDto request) {
+    public AuthDto login(LoginRequestDto request) {
         User user = userRepository
                 .findByLogin(request.getLogin())
                 .orElseThrow(() -> new RuntimeException("User '%s' not found".formatted(request.getLogin())));
@@ -53,14 +50,15 @@ public class AuthServiceImpl implements AuthService {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);*/
         var token = jwtUtil.generateToken(request.getLogin());
-        return token;
+        var authenticationDto = new AuthDto(token);
+        return authenticationDto;
     }
 
     @Override
     @Transactional
     public void registerNewUser(RegisterRequestDto newUser) {
         if (userRepository.existsByLoginIgnoreCase(newUser.getUsername())) {
-            throw new RuntimeException("User already exists");
+            throw new UserAlreadyExistException("User already exists");
         }
         Role userRole = roleRepository
                 .findByRoleName(RoleNameEnum.ROLE_USER)

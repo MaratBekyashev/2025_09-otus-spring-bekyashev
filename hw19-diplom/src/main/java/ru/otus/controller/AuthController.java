@@ -8,18 +8,19 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import ru.otus.model.AuthDto;
 import ru.otus.model.LoginRequestDto;
 import ru.otus.service.AuthService;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
     private final AuthService authService;
 
     @PostMapping("/login")
-    public String login(@RequestBody LoginRequestDto request) {
+    public AuthDto login(@RequestBody LoginRequestDto request) {
         return authService.login(request);
     }
 

@@ -44,6 +44,15 @@ public class GlobalExceptionHandler {
                         errors.toString()));
     }
 
+    @ExceptionHandler(CommonBusinessException.class)
+    ResponseEntity<?> handleCommonBusinessException(CommonBusinessException e) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorMessageRestApi(
+                        LocalDateTime.now(),
+                        HttpStatus.BAD_REQUEST.value(),
+                        e.getMessage()));
+    }
     @ExceptionHandler(Exception.class)
     ResponseEntity<?> handleException(Exception e) {
         return ResponseEntity

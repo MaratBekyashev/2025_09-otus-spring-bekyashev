@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Admin Panel</title>
+    <meta charset="UTF-8">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        .header {
+            background: #34495e;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .container {
+            display: flex;
+        }
+
+        .sidebar {
+            width: 200px;
+            background: #2c3e50;
+            color: white;
+            min-height: 100vh;
+            padding: 15px;
+        }
+
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            display: block;
+            margin: 10px 0;
+        }
+
+        .sidebar a:hover {
+            text-decoration: underline;
+        }
+
+        .content {
+            flex: 1;
+            padding: 20px;
+        }
+
+        button {
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<!-- 🔥 ВАЖНО: fragment -->
+<body th:fragment="layout(content)">
+
+<!-- HEADER -->
+<div class="header">
+    <div>
+        <strong>Task Manager</strong>
+    </div>
+
+    <div>
+        <button onclick="logout()">Logout</button>
+    </div>
+</div>
+
+<div class="container">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <h3>Menu</h3>
+
+        <a href="/ui/projects">Projects</a>
+        <a href="/ui/tasks">Tasks</a>
+        <a href="/ui/users">Users</a>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+        <div th:replace="${content}"></div>
+    </div>
+
+</div>
+
+<!-- 🔐 AUTH + API -->
+<script>
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        window.location.href = "/login";
+    }
+
+    async function apiFetch(url, options = {}) {
+
+        const headers = {
+            "Content-Type": "application/json",
+            ...options.headers
+        };
+
+        if (token) {
+            headers["Authorization"] = "Bearer " + token;
+        }
+
+        const response = await fetch(url, {
+            ...options,
+            headers
+        });
+
+        if (response.status === 401) {
+            localStorage.removeItem("token");
+            window.location.href = "/login";
+        }
+
+        return response;
+    }
+
+    function logout() {
+        localStorage.removeItem("token");
+        window.location.href = "/login";
+    }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

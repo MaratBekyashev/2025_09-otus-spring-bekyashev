@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:replace="layout/base :: layout(~{::content})">
+
+    <div th:fragment="content">
+
+        <div class="d-flex justify-content-between mb-3">
+            <h2>Projects</h2>
+            <button class="btn btn-primary" onclick="openCreateModal()">+ Create</button>
+        </div>
+
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody id="projectsTable"></tbody>
+        </table>
+
+    </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal fade" id="projectModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">Project</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <input type="hidden" id="projectId">
+
+                <div class="mb-3">
+                    <label>Name</label>
+                    <input type="text" id="projectName" class="form-control">
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn btn-success" onclick="saveProject()">Save</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+
+    let modal;
+
+    document.addEventListener("DOMContentLoaded", () => {
+        modal = new bootstrap.Modal(document.getElementById('projectModal'));
+        loadProjects();
+    });
+
+    async function loadProjects() {
+        const response = await apiFetch("/api/projects");
+        const data = await response.json();
+
+        const table = document.getElementById("projectsTable");
+        table.innerHTML = "";
+
+        data.forEach(p => {
+            const row = `
+                <tr>
+                    <td>${p.id}</td>
+                    <td>${p.name}</td>
+                    <td>
+                        <button class="btn btn-sm btn-warning" onclick="editProject(${p.id}, '${p.name}')">Edit</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteProject(${p.id})">Delete</button>
+                    </td>
+                </tr>
+            `;
+            table.innerHTML += row;
+        });
+    }
+
+    function openCreateModal() {
+        document.getElementById("projectId").value = "";
+        document.getElementById("projectName").value = "";
+        modal.show();
+    }
+
+    function editProject(id, name) {
+        document.getElementById("projectId").value = id;
+        document.getElementById("projectName").value = name;
+        modal.show();
+    }
+
+    async function saveProject() {
+        const id = document.getElementById("projectId").value;
+        const name = document.getElementById("projectName").value;
+
+        const method = id ? "PUT" : "POST";
+        const url = id ? `/api/projects/${id}` : "/api/projects";
+
+        await apiFetch(url, {
+            method: method,
+            body: JSON.stringify({ name: name })
+        });
+
+        modal.hide();
+        loadProjects();
+    }
+
+    async function deleteProject(id) {
+        if (!confirm("Delete project?")) return;
+
+        await apiFetch(`/api/projects/${id}`, {
+            method: "DELETE"
+        });
+
+        loadProjects();
+    }
+
+</script>
+
+</body>
+</html>
