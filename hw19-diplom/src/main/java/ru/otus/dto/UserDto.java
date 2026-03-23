@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.otus.entity.User;
 
+import java.util.List;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -38,5 +40,9 @@ public class UserDto {
                 .userName(user.getUserName())
                 .email(user.getEmail())
                 .build();
+    }
+
+    public static List<UserDto> toDtoList(List<User> users) {
+        return users.stream().map(UserDto::toDto).toList();
     }
 }

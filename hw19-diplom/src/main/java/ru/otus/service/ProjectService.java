@@ -1,5 +1,6 @@
 package ru.otus.service;
 import ru.otus.dto.project.CreateProjectDto;
+import ru.otus.dto.project.CreateProjectMemberDto;
 import ru.otus.dto.project.EditProjectDto;
 import ru.otus.dto.project.EditProjectMemberDto;
 import ru.otus.dto.project.ProjectDto;
@@ -23,7 +24,7 @@ public interface ProjectService {
 
     ProjectMemberDto findProjectMember(Long projectId, Long userId);
 
-    ProjectMemberDto addProjectMember(Long projectId, EditProjectMemberDto member);
+    ProjectMemberDto addProjectMember(Long projectId, CreateProjectMemberDto member);
 
     ProjectMemberDto editProjectMember(Long projectId,EditProjectMemberDto member);
 

@@ -1,5 +1,6 @@
 package ru.otus.dto.task;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -51,6 +52,7 @@ public class TaskResponseDto implements IdentifableEntity {
                 .project(project != null? new TaskProjectSimple(project.getProjectId(), project.getName()):null)
                 .assignee(assignee != null? new TaskAssigneeUserSimple(assignee.getUserId(), assignee.getUserName()):null)
                 .dueDate(task.getDueDate())
+                .createDate(task.getCreateDate())
                 .build();
 
         return result;
@@ -63,6 +65,7 @@ public class TaskResponseDto implements IdentifableEntity {
     }
 
     @Override
+    @JsonIgnore
     public Long getId() {
         return this.taskId;
     }

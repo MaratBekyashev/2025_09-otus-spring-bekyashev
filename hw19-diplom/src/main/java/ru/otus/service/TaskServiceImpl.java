@@ -121,7 +121,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Transactional
     @Override
-    @PreAuthorize("@projectPolicy.isUserProjectMember(#projectId)")
+    @PreAuthorize("@projectPolicy.isUserProjectMember(#projectId) or hasRole('ADMIN')")
     @Auditable(action = AuditActionEnum.CREATED, entity = AuditEntityTypeEnum.TASK)
     @Retry(name = "dbRetry")
     @CircuitBreaker(name = "dbCircuitBreaker", fallbackMethod = "fallbackCreateTask")
@@ -156,9 +156,9 @@ public class TaskServiceImpl implements TaskService {
                 .dueDate(dueDate)
                 .build();
 
-        taskRepository.save(task);
+        var saved = taskRepository.save(task);
         this.tasksCreated.increment(1);
-        var result = TaskResponseDto.toDto(task);
+        var result = TaskResponseDto.toDto(saved);
         return result;
     }
 

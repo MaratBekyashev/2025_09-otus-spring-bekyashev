@@ -12,9 +12,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class UiController {
 
     @GetMapping("/projects")
-    public String list(Model model) {
+    public String listProject(Model model) {
 
         return "projects";
+    }
+
+    @GetMapping("/tasks")
+    public String listTasks(Model model) {
+
+        return "tasks";
     }
 
 }

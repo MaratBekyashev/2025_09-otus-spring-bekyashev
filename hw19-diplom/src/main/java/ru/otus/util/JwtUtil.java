@@ -44,13 +44,13 @@ public class JwtUtil {
         return result;
     }
 
-    public AuthTokenProcessResult valudateToken (String jwtToken) {
+    /*public AuthTokenProcessResult validateToken(String jwtToken) {
         if (jwtToken == null) {
             return AuthTokenProcessResult.EMPTY_TOKEN;
         }
 
         try {
-            Jwts.parser().setSigningKey(key).parse(jwtToken);
+            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(jwtToken);
             return AuthTokenProcessResult.SUCCESS;
         }
         catch (ExpiredJwtException ex ){
@@ -59,9 +59,5 @@ public class JwtUtil {
         catch (MalformedJwtException ex ){
             return AuthTokenProcessResult.MALFORMED;
         }
-
-
-
-
-    }
+    }*/
 }

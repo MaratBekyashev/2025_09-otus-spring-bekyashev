@@ -10,6 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import ru.otus.dto.UserDto;
 import ru.otus.dto.project.CreateProjectDto;
+import ru.otus.dto.project.CreateProjectMemberDto;
 import ru.otus.dto.project.EditProjectDto;
 import ru.otus.dto.project.EditProjectMemberDto;
 import ru.otus.dto.project.ProjectDto;
@@ -163,24 +164,20 @@ public class ProjectServiceImpl implements ProjectService{
     @PreAuthorize("@projectPolicy.isUserProjectMember(#projectId) or hasRole('ADMIN')")
     @Retry(name = "dbRetry")
     @CircuitBreaker(name = "dbCircuitBreaker", fallbackMethod = "fallbackAddProjectMember")
-    public ProjectMemberDto addProjectMember(Long projectId, EditProjectMemberDto memberDto) {
-        Project projectOld = checkAndGetProject(projectId);
+    public ProjectMemberDto addProjectMember(Long projectId, CreateProjectMemberDto memberDto) {
+        Project project = checkAndGetProject(projectId);
         User user = checkAndGetUser(memberDto.getUser().getUserId());
-        ProjectMember member = new ProjectMember ();
+        ProjectMember member = new ProjectMember();
         member.setMemberId(null);
         member.setUser(user);
         member.setRoleInProject(memberDto.getRoleInProject());
-        member.setProject(projectOld);
-        if (memberDto.getProject() != null) {
-            Project projectNew = checkAndGetProject(memberDto.getProject().getProjectId());
-            member.setProject(projectNew);
-        }
+        member.setProject(project);
         boolean memberIsAlreadyExist = projectMemberRepository.existsByProject_ProjectIdAndUser_LoginIgnoreCase(
                 projectId,
-                memberDto.getUser().getUserName());
+                user.getLogin());
 
         if (memberIsAlreadyExist) {
-            throw new UserAlreadyExistException("User already in project");
+            throw new UserAlreadyExistException("User already in project(user=%s)".formatted(user.getLogin()));
         }
 
         projectMemberRepository.save(member);
@@ -188,7 +185,7 @@ public class ProjectServiceImpl implements ProjectService{
         return result;
     }
 
-    private ProjectMemberDto fallbackAddProjectMember(Long projectId, EditProjectMemberDto memberDto, Throwable ex)
+    private ProjectMemberDto fallbackAddProjectMember(Long projectId, CreateProjectMemberDto memberDto, Throwable ex)
         throws ServiceNotAvailableException {
         if (ex instanceof CommonBusinessException e) {
             throw e;
@@ -254,6 +251,7 @@ public class ProjectServiceImpl implements ProjectService{
     @Retry(name = "dbRetry")
     @CircuitBreaker(name = "dbCircuitBreaker", fallbackMethod = "fallbackFindAllProjectMembers")
     public List<ProjectMemberDto> findAllProjectMembers(Long projectId) {
+        var project = checkAndGetProject(projectId);
         List<ProjectMember> dataList = projectMemberRepository.findAllByProject_ProjectId(projectId);
         var resultList =  ProjectMemberDto.toDtoList(dataList);
         return resultList;
@@ -273,8 +271,9 @@ public class ProjectServiceImpl implements ProjectService{
     @Retry(name = "dbRetry")
     @CircuitBreaker(name = "dbCircuitBreaker", fallbackMethod = "fallbackFindProjectMember")
     public ProjectMemberDto findProjectMember(Long projectId, Long userId) {
+        var project = checkAndGetProject(projectId);
         ProjectMember member = projectMemberRepository
-                .findByProject_ProjectIdAndUser_UserId(projectId, userId)
+                .findByProject_ProjectIdAndUser_UserId(project.getProjectId(), userId)
                 .orElseThrow(() -> new EntityNotFoundException("Member not found(userId=%d)".formatted(userId)));
        var result = ProjectMemberDto.toDto(member);
        return result;

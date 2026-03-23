@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:replace="layout/base :: layout(~{::content})">
+
+    <div th:fragment="content">
+
+        <div class="d-flex justify-content-between mb-3">
+            <h2>Tasks</h2>
+            <button class="btn btn-primary" onclick="openCreateModal()">+ Create Task</button>
+        </div>
+
+        <!-- FILTERS -->
+        <div class="row mb-3">
+
+            <div class="col">
+                <label>Project: </label>
+                <select id="projectFilter" class="form-select">
+                    <option value="">All projects</option>
+                </select>
+            </div>
+
+            <div class="col">
+                <label>Assignee: </label>
+                <select id="assigneeFilter" class="form-select">
+                    <option value="">All assignees</option>
+                </select>
+            </div>
+
+            <div class="col">
+                <label>Status: </label>
+                <select id="statusFilter" class="form-select" multiple>
+                    <option value="">ALL</option>
+                    <option value="TODO">TODO</option>
+                    <option value="IN_PROGRESS">IN_PROGRESS</option>
+                    <option value="DONE">DONE</option>
+                    <option value="DEFERRED">DEFERRED</option>
+                </select>
+            </div>
+
+            <div class="col">
+                <label>Priority: </label>
+                <select id="priorityFilter" class="form-select">
+                    <option value="">All priorities</option>
+                    <option value="LOW">LOW</option>
+                    <option value="MEDIUM">MEDIUM</option>
+                    <option value="HIGH">HIGH</option>
+                </select>
+            </div>
+
+            <div class="col">
+                <label>Title contains: </label>
+                <input type="text" id="titleFilter" class="form-control" placeholder="Title contains">
+            </div>
+
+            <div class="col">
+                <label>dueDate From: </label>
+                <input type="date" id="dueDateFrom" class="form-control" placeholder="Due from">
+            </div>
+
+            <div class="col">
+                <label>dueDate To: </label>
+                <input type="date" id="dueDateTo" class="form-control" placeholder="Due to">
+            </div>
+
+            <div class="col">
+                <button class="btn btn-secondary" onclick="loadTasks()">Search</button>
+            </div>
+
+        </div>
+
+        <!-- TABLE -->
+        <table class="table table-bordered table-hover" border="1">
+            <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Status</th>
+                <th>Priority</th>
+                <th>Project</th>
+                <th>Assignee</th>
+                <th>Due</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody id="tasksTable"></tbody>
+        </table>
+
+    </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal fade" id="taskModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">Task</h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+
+                <input type="hidden" id="taskId">
+
+                <div class="mb-2">
+                    <label>Title</label>
+                    <input id="title" class="form-control">
+                </div>
+
+                <div class="mb-2">
+                    <label>Description</label>
+                    <textarea id="description" class="form-control"></textarea>
+                </div>
+
+                <div class="mb-2">
+                    <label>Status</label>
+                    <select id="status" class="form-select">
+                        <option value="TODO">TODO</option>
+                        <option value="IN_PROGRESS">IN_PROGRESS</option>
+                        <option value="DONE">DONE</option>
+                    </select>
+                </div>
+
+                <div class="mb-2">
+                    <label>Priority</label>
+                    <select id="priority" class="form-select">
+                        <option value="">--</option>
+                        <option value="LOW">LOW</option>
+                        <option value="MEDIUM">MEDIUM</option>
+                        <option value="HIGH">HIGH</option>
+                    </select>
+                </div>
+
+                <div class="mb-2">
+                    <label>Project</label>
+                    <select id="project" class="form-select"></select>
+                </div>
+
+                <div class="mb-2">
+                    <label>Assignee</label>
+                    <select id="assignee" class="form-select"></select>
+                </div>
+
+                <div class="mb-2">
+                    <label>Due Date</label>
+                    <input type="datetime-local" id="dueDate" class="form-control">
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn btn-success" onclick="saveTask()">Save</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    let modal;
+
+    document.addEventListener("DOMContentLoaded", async () => {
+        modal = new bootstrap.Modal(document.getElementById('taskModal'));
+
+        await loadProjects();
+        await loadUsers();
+       // populateStatusFilters();
+
+        await loadTasks();
+    });
+
+    async function loadProjects() {
+        const res = await apiFetch("/api/projects");
+        const data = await res.json();
+
+        const select = document.getElementById("project");
+        const filter = document.getElementById("projectFilter");
+
+        data.forEach(p => {
+            select.innerHTML += `<option value="${p.id}">${p.name}</option>`;
+            filter.innerHTML += `<option value="${p.id}">${p.name}</option>`;
+        });
+    }
+
+    async function loadUsers() {
+        const res = await apiFetch("/api/users");
+        const users = await res.json();
+
+        const select = document.getElementById("assignee");
+        const filter = document.getElementById("assigneeFilter");
+
+        users.forEach(u => {
+            select.innerHTML += `<option value="${u.userId}">${u.userName}</option>`;
+            filter.innerHTML += `<option value="${u.userId}">${u.userName}</option>`;
+        });
+    }
+
+    async function loadTasks() {
+        const params = new URLSearchParams();
+
+        const projectId = document.getElementById("projectFilter").value;
+        if (projectId) params.append("projectId", projectId);
+
+        const assigneeId = document.getElementById("assigneeFilter").value;
+        if (assigneeId) params.append("assigneeId", assigneeId);
+
+        const statusOptions = Array.from(document.getElementById("statusFilter").selectedOptions).map(o => o.value);
+        statusOptions.forEach(s => params.append("status", s));
+
+        const priority = document.getElementById("priorityFilter").value;
+        if (priority) params.append("priority", priority);
+
+        const title = document.getElementById("titleFilter").value;
+        if (title) params.append("title", title);
+
+        const dueFrom = document.getElementById("dueDateFrom").value;
+        if (dueFrom) params.append("dueDateFrom", dueFrom);
+
+        const dueTo = document.getElementById("dueDateTo").value;
+        if (dueTo) params.append("dueDateTo", dueTo);
+
+        const res = await apiFetch(`/api/tasks/search?${params.toString()}`);
+        const tasks = await res.json();
+
+        const table = document.getElementById("tasksTable");
+        table.innerHTML = "";
+
+        tasks.forEach(t => {
+            table.innerHTML += `
+            <tr>
+                <td>${t.taskId}</td>
+                <td>${t.title}</td>
+                <td>${badge(t.status)}</td>
+                <td>${t.priority ?? "-"}</td>
+                <td>${t.project?.name ?? "-"}</td>
+                <td>${t.assignee?.userName ?? "-"}</td>
+                <td>${formatDate(t.dueDate)}</td>
+                <td>
+                    <button class="btn btn-sm btn-warning" onclick='editTask(${JSON.stringify(t)})'>Edit</button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteTask(${t.taskId})">Delete</button>
+                </td>
+            </tr>
+        `;
+        });
+    }
+
+    function openCreateModal() {
+        clearForm();
+        modal.show();
+    }
+
+    function editTask(t) {
+        document.getElementById("taskId").value = t.taskId;
+        document.getElementById("title").value = t.title;
+        document.getElementById("description").value = t.description;
+        document.getElementById("status").value = t.status;
+        document.getElementById("priority").value = t.priority || "";
+        document.getElementById("project").value = t.project?.projectId;
+        document.getElementById("assignee").value = t.assignee?.userId;
+        if (t.dueDate) document.getElementById("dueDate").value = t.dueDate.substring(0,16);
+
+        modal.show();
+    }
+
+    async function saveTask() {
+        const id = document.getElementById("taskId").value;
+        const projectId = document.getElementById("project").value;
+
+        if (!projectId) { alert("Select project"); return; }
+
+        const body = {
+            title: document.getElementById("title").value,
+            description: document.getElementById("description").value,
+            status: document.getElementById("status").value,
+            priority: document.getElementById("priority").value || null,
+            assigneeId: document.getElementById("assignee").value,
+            dueDate: document.getElementById("dueDate").value || null
+        };
+
+        let url = id ? `/api/tasks/${id}` : `/api/tasks/projects/${projectId}`;
+        let method = id ? "PUT" : "POST";
+
+        await apiFetch(url, { method, body: JSON.stringify(body) });
+
+        modal.hide();
+        loadTasks();
+    }
+
+    async function deleteTask(id) {
+        if (!confirm("Delete task?")) return;
+
+        await apiFetch(`/api/tasks/${id}`, { method: "DELETE" });
+        loadTasks();
+    }
+
+    function clearForm() {
+        document.getElementById("taskId").value = "";
+        document.querySelectorAll("#taskModal input, #taskModal textarea").forEach(e => e.value = "");
+    }
+
+    function formatDate(d) { if (!d) return "-"; return new Date(d).toLocaleString(); }
+
+    function badge(status) {
+        if (status === "TODO") return '<span class="badge bg-secondary">TODO</span>';
+        if (status === "IN_PROGRESS") return '<span class="badge bg-warning text-dark">IN_PROGRESS</span>';
+        if (status === "DONE") return '<span class="badge bg-success">DONE</span>';
+        return status;
+    }
+</script>
+
+</body>
+</html>

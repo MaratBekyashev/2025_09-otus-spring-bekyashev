@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.otus.dto.project.CreateProjectDto;
+import ru.otus.dto.project.CreateProjectMemberDto;
 import ru.otus.model.projects.CreateProjectRequest;
 import ru.otus.dto.project.EditProjectDto;
 import ru.otus.dto.project.EditProjectMemberDto;
@@ -86,13 +87,8 @@ public class ProjectController {
 
     @PostMapping("/{projectId}/members")
     public ProjectMemberDto addProjectMember(@PathVariable Long projectId,
-                                             @RequestBody EditProjectMemberDto member) {
-        EditProjectMemberDto projectMember = EditProjectMemberDto.builder()
-                .project(member.getProject())
-                .user(member.getUser())
-                .roleInProject(member.getRoleInProject())
-                .build();
-        var createdProjectMember = projectService.addProjectMember(projectId, projectMember);
+                                             @RequestBody CreateProjectMemberDto member) {
+        var createdProjectMember = projectService.addProjectMember(projectId, member);
         return createdProjectMember;
     }
 

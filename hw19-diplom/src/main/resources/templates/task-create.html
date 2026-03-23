@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:replace="layout/base :: layout(~{::content})">
+
+    <div th:fragment="content">
+
+        <h2>Create Task</h2>
+
+        <div class="card p-4">
+
+            <div class="mb-3">
+                <label>Title *</label>
+                <input id="title" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label>Description</label>
+                <textarea id="description" class="form-control"></textarea>
+            </div>
+
+            <div class="row">
+
+                <div class="col mb-3">
+                    <label>Priority</label>
+                    <select id="priority" class="form-select">
+                        <option value="">--</option>
+                        <option value="LOW">LOW</option>
+                        <option value="MEDIUM">MEDIUM</option>
+                        <option value="HIGH">HIGH</option>
+                    </select>
+                </div>
+
+                <div class="col mb-3">
+                    <label>Assignee</label>
+                    <select id="assignee" class="form-select">
+                        <option value="">Unassigned</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="mb-3">
+                <label>Project *</label>
+                <select id="project" class="form-select" required></select>
+            </div>
+
+            <div class="mb-3">
+                <label>Due Date</label>
+                <input type="datetime-local" id="dueDate" class="form-control">
+            </div>
+
+            <div class="d-flex gap-2">
+                <button class="btn btn-success" onclick="createTask()">Create</button>
+                <a href="/ui/tasks" class="btn btn-secondary">Cancel</a>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<script>
+
+    document.addEventListener("DOMContentLoaded", async () => {
+        await loadProjects();
+        await loadUsers();
+    });
+
+    async function loadProjects() {
+        const res = await apiFetch("/api/projects");
+        const data = await res.json();
+
+        const select = document.getElementById("project");
+
+        data.forEach(p => {
+            select.innerHTML += `<option value="${p.id}">${p.name}</option>`;
+        });
+    }
+
+    async function loadUsers() {
+        const res = await apiFetch("/api/users");
+        const users = await res.json();
+
+        const select = document.getElementById("assignee");
+
+        users.forEach(u => {
+            select.innerHTML += `<option value="${u.userId}">${u.userName}</option>`;
+        });
+    }
+
+    async function createTask() {
+
+        const projectId = document.getElementById("project").value;
+
+        if (!projectId) {
+            alert("Project is required");
+            return;
+        }
+
+        const body = {
+            title: document.getElementById("title").value,
+            description: document.getElementById("description").value,
+            priority: document.getElementById("priority").value || null,
+            assigneeId: document.getElementById("assignee").value || null,
+            dueDate: document.getElementById("dueDate").value || null
+        };
+
+        try {
+            await apiFetch(`/api/tasks/projects/${projectId}`, {
+                method: "POST",
+                body: JSON.stringify(body)
+            });
+
+            window.location.href = "/ui/tasks?projectId=" + projectId;
+
+        } catch (e) {
+            alert("Error creating task");
+        }
+    }
+
+</script>
+
+</body>
+</html>
