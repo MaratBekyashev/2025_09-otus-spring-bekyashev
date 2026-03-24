@@ -1,10 +1,11 @@
 package ru.otus.model.task;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 public record CreateTaskRequest(
-        @NotNull(message = "Заголовок задачи должен быть заполнен")
+        @NotBlank(message = "Заголовок задачи должен быть заполнен")
         String title,
 
         String description,

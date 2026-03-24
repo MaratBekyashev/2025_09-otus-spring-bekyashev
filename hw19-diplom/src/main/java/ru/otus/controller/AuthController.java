@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import ru.otus.dto.UserDto;
 import ru.otus.model.AuthDto;
 import ru.otus.model.LoginRequestDto;
 import ru.otus.service.AuthService;
@@ -22,6 +23,12 @@ public class AuthController {
     @PostMapping("/login")
     public AuthDto login(@RequestBody LoginRequestDto request) {
         return authService.login(request);
+    }
+
+    @GetMapping("/current")
+    public ResponseEntity<UserDto> getCurrentUser() {
+        UserDto user = authService.getCurrentUser();
+        return ResponseEntity.ok(user);
     }
 
     @GetMapping("/encode")
