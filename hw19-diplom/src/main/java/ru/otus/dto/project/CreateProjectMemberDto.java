@@ -1,6 +1,6 @@
 package ru.otus.dto.project;
 
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,7 +16,7 @@ import ru.otus.model.ProjectRoleEnum;
 @Builder
 public class CreateProjectMemberDto {
 
-    @NotNull(message = "Пользователь должен быть указан при включении в проект")
+    @NotBlank(message = "Пользователь должен быть указан при включении в проект")
     private UserDto user;
 
     private ProjectRoleEnum roleInProject;

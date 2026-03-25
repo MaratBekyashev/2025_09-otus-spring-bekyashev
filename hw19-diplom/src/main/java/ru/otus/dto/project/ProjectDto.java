@@ -9,7 +9,6 @@ import ru.otus.dto.UserDto;
 import ru.otus.entity.Project;
 import ru.otus.entity.User;
 import ru.otus.model.IdentifableEntity;
-
 import java.time.LocalDateTime;
 import java.util.List;
 

@@ -13,7 +13,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.otus.model.RoleNameEnum;
-
 import java.util.HashSet;
 import java.util.Set;
 

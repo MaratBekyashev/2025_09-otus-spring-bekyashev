@@ -1,9 +1,9 @@
 package ru.otus.model.projects;
 
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 
 public record CreateProjectRequest(
-        @NotNull(message = "Имя проекта не может быть пустым")
+        @NotBlank(message = "Имя проекта не может быть пустым")
         String name,
         String description
 ) {}

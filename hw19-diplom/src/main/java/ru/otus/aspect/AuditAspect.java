@@ -7,11 +7,13 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import ru.otus.annotation.Auditable;
 import ru.otus.model.IdentifableEntity;
-import ru.otus.security.CustomUserDetails;
 import ru.otus.service.AuditService;
+import java.util.Collections;
+import java.util.List;
 
 @Aspect
 @Component
@@ -30,27 +32,38 @@ public class AuditAspect {
         if (authentication == null) {
             return;
         }
-        Long entityId = extractIdentifiableEntityId(result);
+        List<Long> entityIdList = extractIdentifiableEntityId(result);
 
-        if (entityId == null) {
+        if (entityIdList == null) {
             String paramName = auditable.idFieldName();
-            entityId = extractIdFromMethodArgs(joinPoint, paramName);
+            entityIdList = Collections.singletonList(extractIdFromMethodArgs(joinPoint, paramName));
         }
 
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        String userLogin = userDetails.getUser().getLogin();
-
-        auditService.log(auditable.entity().name(), entityId, auditable.action().name(), userLogin);
+        var userDetails = (UserDetails) authentication.getPrincipal();
+        String userLogin = userDetails.getUsername();
+        for (Long entityId: entityIdList) {
+            auditService.log(auditable.entity().name(), entityId, auditable.action().name(), userLogin);
+        }
     }
 
-    private Long extractIdentifiableEntityId(Object result) {
+    private List<Long> extractIdentifiableEntityId(Object result) {
         if (result == null) {
             return null;
         }
         if (result instanceof IdentifableEntity enity) {
             Long id = enity.getId();
-            return id;
+            return Collections.singletonList(id);
         }
+
+        if (result instanceof List<?> list &&
+            list.size() > 0 &&
+            list.get(0) instanceof IdentifableEntity ) {
+            List<Long> resultList = list.stream()
+                    .map(e -> ((IdentifableEntity)e).getId())
+                    .toList();
+            return resultList;
+        }
+
         return null;
     }
 

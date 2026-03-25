@@ -7,8 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.otus.entity.TaskComment;
 import ru.otus.model.IdentifableEntity;
-
 import java.time.LocalDateTime;
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -40,6 +40,10 @@ public class TaskCommentDto implements IdentifableEntity {
                 .build();
 
         return result;
+    }
+
+    public static List<TaskCommentDto> toDtoList(List<TaskComment> comments) {
+        return comments.stream().map(TaskCommentDto::toDto).toList();
     }
 
     @Override

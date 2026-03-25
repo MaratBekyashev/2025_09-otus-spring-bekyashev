@@ -203,7 +203,7 @@ public class ProjectServiceImpl implements ProjectService{
                                               EditProjectMemberDto memberDto) {
         Project project = checkAndGetProject(projectId);
         ProjectMember member = projectMemberRepository
-                .findByProject_ProjectIdAndUser_LoginIgnoreCase(projectId, memberDto.getUser().getLogin())
+                .findByProject_ProjectIdAndUser_UserId(projectId, memberDto.getUser().getUserId())
                 .orElseThrow(() -> {
                     String msg = "Project member not found(projectId=%d, login=%s)".formatted(
                              projectId,
@@ -252,7 +252,7 @@ public class ProjectServiceImpl implements ProjectService{
     @CircuitBreaker(name = "dbCircuitBreaker", fallbackMethod = "fallbackFindAllProjectMembers")
     public List<ProjectMemberDto> findAllProjectMembers(Long projectId) {
         var project = checkAndGetProject(projectId);
-        List<ProjectMember> dataList = projectMemberRepository.findAllByProject_ProjectId(projectId);
+        List<ProjectMember> dataList = projectMemberRepository.findAllByProject_ProjectIdAndUser_IsDeletedIsNull(projectId);
         var resultList =  ProjectMemberDto.toDtoList(dataList);
         return resultList;
     }

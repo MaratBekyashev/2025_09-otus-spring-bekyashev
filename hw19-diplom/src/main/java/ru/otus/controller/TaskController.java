@@ -20,7 +20,6 @@ import ru.otus.model.task.TaskSearchFilter;
 import ru.otus.model.task.TaskStatusEnum;
 import ru.otus.model.task.UpdateTaskRequest;
 import ru.otus.service.TaskService;
-
 import java.time.LocalDate;
 import java.util.List;
 

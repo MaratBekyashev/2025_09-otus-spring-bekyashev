@@ -15,8 +15,6 @@ import ru.otus.model.ProjectRoleEnum;
 @Builder
 public class EditProjectMemberDto {
 
-    //private ProjectDto project;
-
     private UserDto user;
 
     private ProjectRoleEnum roleInProject;

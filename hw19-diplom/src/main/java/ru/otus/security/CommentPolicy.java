@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import ru.otus.repository.TaskCommentRepository;
-import ru.otus.security.CustomUserDetails;
 
 @Service("commentPolicy")
 @RequiredArgsConstructor

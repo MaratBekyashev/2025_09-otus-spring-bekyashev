@@ -17,7 +17,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 import java.util.Set;
 
 @Entity
@@ -28,10 +27,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @NamedEntityGraph(name = "user-with-roles-entity-graph",
-        attributeNodes = {
-                @NamedAttributeNode("roles")
-        })
-
+        attributeNodes = {@NamedAttributeNode("roles")})
 public class User {
 
     @Id
@@ -50,6 +46,9 @@ public class User {
 
     @Column(name = "email")
     private String email;
+
+    @Column(name = "is_deleted")
+    private String isDeleted;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_roles",

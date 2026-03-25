@@ -2,7 +2,6 @@ package ru.otus.annotation;
 
 import ru.otus.model.AuditActionEnum;
 import ru.otus.model.AuditEntityTypeEnum;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

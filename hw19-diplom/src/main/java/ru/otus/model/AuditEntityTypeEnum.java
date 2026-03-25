@@ -4,6 +4,7 @@ public enum AuditEntityTypeEnum {
     PROJECT,
     PROJECT_MEMBER,
     TASK,
-    TASK_COMMENT
+    TASK_COMMENT,
+    USER
 
 }

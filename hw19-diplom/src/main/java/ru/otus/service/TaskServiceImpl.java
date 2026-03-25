@@ -21,12 +21,11 @@ import ru.otus.model.AuditActionEnum;
 import ru.otus.model.AuditEntityTypeEnum;
 import ru.otus.model.task.TaskPriorityEnum;
 import ru.otus.model.task.TaskSearchFilter;
-import ru.otus.model.task.TaskSpecification;
+import ru.otus.model.task.TaskSearchSpecification;
 import ru.otus.model.task.TaskStatusEnum;
 import ru.otus.repository.ProjectRepository;
 import ru.otus.repository.TaskRepository;
 import ru.otus.repository.UserRepository;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -41,6 +40,8 @@ public class TaskServiceImpl implements TaskService {
 
     private final UserRepository userRepository;
 
+    private final CommentService commentService;
+
     private final AuthService authService;
 
     private final Counter tasksCreated;
@@ -49,11 +50,13 @@ public class TaskServiceImpl implements TaskService {
                            ProjectRepository projectRepository,
                            UserRepository userRepository,
                            AuthService authService,
+                           CommentService commentService,
                            MeterRegistry registry) {
         this.taskRepository = taskRepository;
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
         this.authService = authService;
+        this.commentService = commentService;
         this.tasksCreated = Counter
                 .builder("tasks.currentCount")
                 .description("Quantity of active tasks")
@@ -65,7 +68,7 @@ public class TaskServiceImpl implements TaskService {
     @Retry(name = "dbRetry")
     @CircuitBreaker(name = "dbCircuitBreaker", fallbackMethod = "fallbackTaskSearch")
     public List<TaskResponseDto> taskSearch(TaskSearchFilter filter) {
-        Specification<Task> spec = TaskSpecification.build(filter);
+        Specification<Task> spec = TaskSearchSpecification.build(filter);
         List<Task> dataList = taskRepository.findAll(spec);
         return TaskResponseDto.toDtoList(dataList);
     }
@@ -243,6 +246,7 @@ public class TaskServiceImpl implements TaskService {
     @Retry(name = "dbRetry")
     @CircuitBreaker(name = "dbCircuitBreaker", fallbackMethod = "fallbackDeleteTask")
     public void deleteTask(Long taskId) {
+        commentService.deleteTaskComments(taskId);
         taskRepository.deleteById(taskId);
         this.tasksCreated.increment(-1);
     }

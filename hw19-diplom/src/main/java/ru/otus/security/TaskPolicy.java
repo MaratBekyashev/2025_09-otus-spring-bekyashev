@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import ru.otus.repository.TaskRepository;
-import ru.otus.security.CustomUserDetails;
 
 @Service("taskPolicy")
 @RequiredArgsConstructor

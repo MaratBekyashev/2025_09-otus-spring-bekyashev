@@ -20,7 +20,7 @@ public interface TaskService {
                                String description,
                                TaskPriorityEnum priority,
                                Long assigneeId,
-                               LocalDateTime dueDate) ;
+                               LocalDateTime dueDate);
 
     TaskResponseDto updateTask(Long taskId,
                                String title,
@@ -28,7 +28,7 @@ public interface TaskService {
                                TaskStatusEnum status,
                                TaskPriorityEnum priority,
                                Long assigneeId,
-                               LocalDateTime dueDate) ;
+                               LocalDateTime dueDate);
 
     void deleteTask(Long taskId);
 }

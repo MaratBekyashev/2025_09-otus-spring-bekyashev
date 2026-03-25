@@ -10,8 +10,6 @@ public record TaskSearchFilter(
         List<TaskStatusEnum> statuses,
         TaskPriorityEnum priority,
         String title,
-
         LocalDate dueDateFrom,
         LocalDate dueDateTo
-
 ) {}

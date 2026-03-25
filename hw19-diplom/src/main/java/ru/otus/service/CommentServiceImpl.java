@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.otus.annotation.Auditable;
 import ru.otus.dto.UserDto;
-import ru.otus.dto.task.TaskResponseDto;
 import ru.otus.dto.taskComment.TaskCommentDto;
 import ru.otus.entity.Task;
 import ru.otus.entity.TaskComment;
@@ -111,6 +110,22 @@ public class CommentServiceImpl implements CommentService{
             throw e;
         }
         log.error("Fallback triggered for deleteComment(commentId={}", commentId, ex);
+        throw new ServiceNotAvailableException("Database is temporarily unavailable");
+    }
+
+    @Override
+    @Transactional
+    @Retry(name = "dbRetry")
+    @CircuitBreaker(name = "dbCircuitBreaker", fallbackMethod = "fallbackDeleteTaskComments")
+    @Auditable(action = AuditActionEnum.DELETED, entity = AuditEntityTypeEnum.TASK_COMMENT)
+    public List<TaskCommentDto> deleteTaskComments(Long taskId) {
+        List<TaskComment> comments = commentRepository.deleteCommentsByTaskAndGet(taskId);
+        return TaskCommentDto.toDtoList(comments);
+    }
+
+    private void fallbackDeleteTaskComments(Long taskId,
+                                            Throwable ex) throws ServiceNotAvailableException {
+        log.error("Fallback triggered for deleteTaskComments(taskId={}", taskId, ex);
         throw new ServiceNotAvailableException("Database is temporarily unavailable");
     }
 

@@ -110,6 +110,18 @@
                     <select id="assignee" class="form-select"></select>
                 </div>
 
+                <!-- ================= COMMENTS ================= -->
+                <hr>
+
+                <h5>Comments</h5>
+
+                <div id="commentsList" class="mb-3"></div>
+
+                <div class="input-group">
+                    <input id="commentText" class="form-control" placeholder="Write a comment...">
+                    <button class="btn btn-primary" onclick="addComment()">Add</button>
+                </div>
+
             </div>
 
             <div class="drawer-footer">
@@ -170,27 +182,38 @@
         gap: 10px;
     }
 </style>
-
-<!-- SCRIPT -->
 <script>
+    let currentTaskId = null;
+
+    /* ================= INIT ================= */
     document.addEventListener("DOMContentLoaded", async () => {
         await loadProjects();
         await loadUsers();
         await loadTasks();
     });
 
-    function openCreate() {
+    /* ================= DRAWER ================= */
+
+    window.openCreate = function () {
+        currentTaskId = null;
+
         clearForm();
 
-        document.getElementById("drawerTitle").innerText = "Create Task";
+        document.getElementById("taskId").value = "";
         document.getElementById("taskIdDisplay").value = "NEW";
 
-        document.getElementById("drawer").classList.add("open");
-    }
+        document.getElementById("drawerTitle").innerText = "Create Task";
 
-    function closeDrawer() {
+        document.getElementById("commentsList").innerHTML = "";
+
+        document.getElementById("drawer").classList.add("open");
+    };
+
+    window.closeDrawer = function () {
         document.getElementById("drawer").classList.remove("open");
-    }
+    };
+
+    /* ================= LOAD DATA ================= */
 
     async function loadProjects() {
         const res = await apiFetch("/api/projects");
@@ -198,6 +221,9 @@
 
         const select = document.getElementById("project");
         const filter = document.getElementById("projectFilter");
+
+        select.innerHTML = "";
+        filter.innerHTML = '<option value="">All</option>';
 
         data.forEach(p => {
             select.innerHTML += `<option value="${p.id}">${p.name}</option>`;
@@ -212,13 +238,18 @@
         const select = document.getElementById("assignee");
         const filter = document.getElementById("assigneeFilter");
 
+        select.innerHTML = "";
+        filter.innerHTML = '<option value="">All</option>';
+
         users.forEach(u => {
             select.innerHTML += `<option value="${u.userId}">${u.userName}</option>`;
             filter.innerHTML += `<option value="${u.userId}">${u.userName}</option>`;
         });
     }
 
-    async function loadTasks() {
+    /* ================= TASKS ================= */
+
+    window.loadTasks = async function () {
 
         const params = new URLSearchParams();
 
@@ -258,9 +289,12 @@
             </tr>
         `;
         });
-    }
+    };
 
-    function editTask(t) {
+    window.editTask = function (t) {
+
+        currentTaskId = t.taskId;
+
         document.getElementById("taskId").value = t.taskId;
         document.getElementById("taskIdDisplay").value = t.taskId;
 
@@ -272,9 +306,19 @@
 
         document.getElementById("drawerTitle").innerText = "Edit Task";
         document.getElementById("drawer").classList.add("open");
-    }
 
-    async function saveTask() {
+        loadComments(currentTaskId);
+    };
+
+    window.deleteTask = async function (id) {
+        if (!confirm("Delete task?")) return;
+
+        await apiFetch(`/api/tasks/${id}`, { method: "DELETE" });
+        loadTasks();
+    };
+
+    window.saveTask = async function () {
+
         const id = document.getElementById("taskId").value;
         const projectId = document.getElementById("project").value;
 
@@ -303,23 +347,71 @@
 
         closeDrawer();
         loadTasks();
+    };
+
+    /* ================= COMMENTS ================= */
+
+    async function loadComments(taskId) {
+        const res = await apiFetch(`/api/tasks/${taskId}/comments`);
+        const comments = await res.json();
+
+        const container = document.getElementById("commentsList");
+        container.innerHTML = "";
+
+        comments.forEach(c => {
+            container.innerHTML += `
+            <div class="border rounded p-2 mb-2">
+                <div><strong>${c.authorName}</strong></div>
+                <div>${c.text}</div>
+                <div class="text-muted" style="font-size:12px;">
+                    ${c.createdAt}
+                </div>
+                <button class="btn btn-sm btn-danger mt-1" onclick="deleteComment(${c.commentId})">
+                    Delete
+                </button>
+            </div>
+        `;
+        });
     }
 
-    async function deleteTask(id) {
-        if (!confirm("Delete task?")) return;
+    window.addComment = async function () {
 
-        await apiFetch(`/api/tasks/${id}`, { method: "DELETE" });
-        loadTasks();
-    }
+        const text = document.getElementById("commentText").value.trim();
+
+        if (!text) {
+            alert("Comment cannot be empty");
+            return;
+        }
+
+        await apiFetch(`/api/tasks/${currentTaskId}/comments`, {
+            method: "POST",
+            body: JSON.stringify({ text })
+        });
+
+        document.getElementById("commentText").value = "";
+        loadComments(currentTaskId);
+    };
+
+    window.deleteComment = async function (commentId) {
+
+        if (!confirm("Delete comment?")) return;
+
+        await apiFetch(`/api/tasks/${currentTaskId}/comments/${commentId}`, {
+            method: "DELETE"
+        });
+
+        loadComments(currentTaskId);
+    };
+
+    /* ================= UTILS ================= */
 
     function clearForm() {
         document.getElementById("taskId").value = "";
         document.getElementById("taskIdDisplay").value = "";
-
         document.getElementById("title").value = "";
         document.getElementById("description").value = "";
     }
-</script>
 
+</script>
 </body>
 </html>

@@ -3,11 +3,10 @@ package ru.otus.model.task;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 import ru.otus.entity.Task;
-
 import java.util.ArrayList;
 import java.util.List;
 
-public class TaskSpecification {
+public class TaskSearchSpecification {
 
     public static Specification<Task> build(TaskSearchFilter filter) {
 

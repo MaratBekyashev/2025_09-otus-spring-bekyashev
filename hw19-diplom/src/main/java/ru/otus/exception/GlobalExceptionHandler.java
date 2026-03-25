@@ -43,7 +43,6 @@ public class GlobalExceptionHandler {
                         HttpStatus.BAD_REQUEST.value(),
                         errors.toString()));
     }
-
     @ExceptionHandler(CommonBusinessException.class)
     ResponseEntity<?> handleCommonBusinessException(CommonBusinessException e) {
         return ResponseEntity

@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import ru.otus.entity.Project;
-
 import java.time.LocalDateTime;
 import java.util.List;
 

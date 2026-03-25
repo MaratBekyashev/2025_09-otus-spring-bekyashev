@@ -12,7 +12,6 @@ public class CustomUserDetails implements UserDetails {
 
     private final User user;
 
-
     public User getUser() {
         return user;
     }
@@ -41,5 +40,5 @@ public class CustomUserDetails implements UserDetails {
     public boolean isCredentialsNonExpired() { return true; }
 
     @Override
-    public boolean isEnabled() { return true; }
+    public boolean isEnabled() { return user.getIsDeleted() == null; }
 }

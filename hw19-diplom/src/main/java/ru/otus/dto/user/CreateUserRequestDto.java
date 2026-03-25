@@ -11,11 +11,13 @@ import java.util.List;
 @NoArgsConstructor
 public class CreateUserRequestDto {
 
-    @NotBlank (message = "Логин пользователя должен быть указан ")
+    @NotBlank (message = "Логин пользователя должен быть указан")
     private String login;
 
+    @NotBlank (message = "Пароль пользователя должен быть указан")
     private String password;
 
+    @NotBlank (message = "ФИО пользователя должно быть указано")
     private String fullUserName;
 
     private String email;

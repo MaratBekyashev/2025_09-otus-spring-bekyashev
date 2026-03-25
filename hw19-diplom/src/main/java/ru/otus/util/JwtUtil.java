@@ -3,23 +3,18 @@ package ru.otus.util;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import ru.otus.security.AuthTokenProcessResult;
 import java.security.Key;
 import java.util.Date;
 
 @Component
-@RequiredArgsConstructor
 public class JwtUtil {
 
-    private final JwtProperties jwtProps;
-    private long expiration;
+    private final long expiration;
 
-    private Key key;
-    @PostConstruct
-    private void init () {
+    private final Key key;
+
+    public JwtUtil(JwtProperties jwtProps) {
         String secretKey = jwtProps.getSecretKey();
         key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
         expiration = 1000 * 60 * 60 * jwtProps.getJwtTokenExpirationHours();
@@ -44,20 +39,4 @@ public class JwtUtil {
         return result;
     }
 
-    /*public AuthTokenProcessResult validateToken(String jwtToken) {
-        if (jwtToken == null) {
-            return AuthTokenProcessResult.EMPTY_TOKEN;
-        }
-
-        try {
-            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(jwtToken);
-            return AuthTokenProcessResult.SUCCESS;
-        }
-        catch (ExpiredJwtException ex ){
-            return AuthTokenProcessResult.EXPIRED;
-        }
-        catch (MalformedJwtException ex ){
-            return AuthTokenProcessResult.MALFORMED;
-        }
-    }*/
 }

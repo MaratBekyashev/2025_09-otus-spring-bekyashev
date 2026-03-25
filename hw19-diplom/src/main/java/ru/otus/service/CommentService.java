@@ -9,5 +9,7 @@ public interface CommentService {
 
     TaskCommentDto createComment(Long taskId, String text) ;
 
-    void deleteComment(Long commentId) ;
+    void deleteComment(Long commentId);
+
+    List<TaskCommentDto> deleteTaskComments(Long taskId);
 }

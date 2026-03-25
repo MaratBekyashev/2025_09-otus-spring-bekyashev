@@ -13,14 +13,17 @@ public class UiController {
 
     @GetMapping("/projects")
     public String listProject(Model model) {
-
         return "projects";
     }
 
     @GetMapping("/tasks")
     public String listTasks(Model model) {
-
         return "tasks";
+    }
+
+    @GetMapping("/users")
+    public String listUsers(Model model) {
+        return "users";
     }
 
 }

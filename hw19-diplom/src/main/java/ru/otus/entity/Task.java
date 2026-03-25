@@ -17,7 +17,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.otus.model.task.TaskPriorityEnum;
 import ru.otus.model.task.TaskStatusEnum;
-
 import java.time.LocalDateTime;
 
 @Entity

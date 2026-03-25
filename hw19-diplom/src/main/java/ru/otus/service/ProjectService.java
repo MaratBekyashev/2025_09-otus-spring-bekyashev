@@ -1,4 +1,5 @@
 package ru.otus.service;
+
 import ru.otus.dto.project.CreateProjectDto;
 import ru.otus.dto.project.CreateProjectMemberDto;
 import ru.otus.dto.project.EditProjectDto;
@@ -29,8 +30,5 @@ public interface ProjectService {
     ProjectMemberDto editProjectMember(Long projectId,EditProjectMemberDto member);
 
     void deleteProjectMember(Long projectId, Long userId);
-
-
-
 
 }

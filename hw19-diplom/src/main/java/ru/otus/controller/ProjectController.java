@@ -99,7 +99,7 @@ public class ProjectController {
         return result;
     }
 
-    @DeleteMapping("/projects/{projectId}/members/{userId}")
+    @DeleteMapping("/{projectId}/members/{userId}")
     public void deleteProjectMember(@PathVariable("projectId") Long projectId,
                                     @PathVariable("userId") Long userId) {
         projectService.deleteProjectMember(projectId, userId);

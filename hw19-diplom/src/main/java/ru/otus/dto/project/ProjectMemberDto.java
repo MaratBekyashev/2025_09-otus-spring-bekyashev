@@ -9,7 +9,6 @@ import ru.otus.dto.UserDto;
 import ru.otus.entity.ProjectMember;
 import ru.otus.model.IdentifableEntity;
 import ru.otus.model.ProjectRoleEnum;
-
 import java.util.List;
 
 @Getter
