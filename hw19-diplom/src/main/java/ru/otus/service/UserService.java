@@ -10,6 +10,8 @@ public interface UserService {
 
     List<UserDto> search (UserSearchFilter filter);
 
+    List<UserDto> getAllUsers();
+
     UserDto findUserById(Long userId);
 
     UserDto createUser(CreateUserRequestDto request);

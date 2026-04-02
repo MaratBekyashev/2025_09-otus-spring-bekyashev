@@ -48,6 +48,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public List<UserDto> getAllUsers() {
+        List<User> dataList = userRepo.getAllUsers();
+        var resultList = UserDto.toDtoList(dataList);
+        return resultList;
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public UserDto findUserById(Long userId) {
         User user = findUser(userId)
