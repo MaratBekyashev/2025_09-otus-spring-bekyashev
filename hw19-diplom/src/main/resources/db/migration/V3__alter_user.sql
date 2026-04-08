@@ -1,0 +1,1 @@
+alter table users add is_deleted varchar(1);

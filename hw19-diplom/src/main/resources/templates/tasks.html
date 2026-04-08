@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:replace="~{layout/base :: layout(~{::content})}">
+
+    <div th:fragment="content">
+
+        <!-- HEADER -->
+        <div class="d-flex justify-content-between mb-3">
+            <h2>Tasks</h2>
+            <button class="btn btn-primary" onclick="openCreate()">+ Create Task</button>
+        </div>
+
+        <!-- FILTERS -->
+        <div class="row mb-3">
+
+            <div class="col">
+                <label>Project</label>
+                <select id="projectFilter" class="form-select">
+                    <option value="">All</option>
+                </select>
+            </div>
+
+            <div class="col">
+                <label>Assignee</label>
+                <select id="assigneeFilter" class="form-select">
+                    <option value="">All</option>
+                </select>
+            </div>
+
+            <div class="col">
+                <label>Status</label>
+                <select id="statusFilter" class="form-select" multiple>
+                    <option value="TODO">TODO</option>
+                    <option value="IN_PROGRESS">IN_PROGRESS</option>
+                    <option value="DONE">DONE</option>
+                </select>
+            </div>
+
+            <div class="col">
+                <label>Title</label>
+                <input id="titleFilter" class="form-control" placeholder="Search...">
+            </div>
+
+            <div class="col d-flex align-items-end">
+                <button class="btn btn-secondary w-100" onclick="loadTasks()">Search</button>
+            </div>
+
+        </div>
+
+        <!-- TABLE -->
+        <table class="table table-bordered table-striped">
+            <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Status</th>
+                <th>Project</th>
+                <th>Assignee</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody id="tasksTable"></tbody>
+        </table>
+
+        <!-- DRAWER -->
+        <div id="drawer" class="drawer">
+
+            <div class="drawer-header">
+                <h5 id="drawerTitle">Task</h5>
+                <button class="btn-close" onclick="closeDrawer()"></button>
+            </div>
+
+            <div class="drawer-body">
+
+                <div class="mb-2">
+                    <label>ID</label>
+                    <input id="taskIdDisplay" class="form-control" readonly>
+                </div>
+
+                <input type="hidden" id="taskId">
+
+                <div class="mb-2">
+                    <label>Title</label>
+                    <input id="title" class="form-control">
+                </div>
+
+                <div class="mb-2">
+                    <label>Description</label>
+                    <textarea id="description" class="form-control"></textarea>
+                </div>
+
+                <div class="mb-2">
+                    <label>Status</label>
+                    <select id="status" class="form-select">
+                        <option value="TODO">TODO</option>
+                        <option value="IN_PROGRESS">IN_PROGRESS</option>
+                        <option value="DONE">DONE</option>
+                    </select>
+                </div>
+
+                <div class="mb-2">
+                    <label>Project</label>
+                    <select id="project" class="form-select"></select>
+                </div>
+
+                <div class="mb-2">
+                    <label>Assignee</label>
+                    <select id="assignee" class="form-select"></select>
+                </div>
+
+                <!-- ================= COMMENTS ================= -->
+                <hr>
+
+                <h5>Comments</h5>
+
+                <div id="commentsList" class="mb-3"></div>
+
+                <div class="input-group">
+                    <input id="commentText" class="form-control" placeholder="Write a comment...">
+                    <button class="btn btn-primary" onclick="addComment()">Add</button>
+                </div>
+
+            </div>
+
+            <div class="drawer-footer">
+                <button class="btn btn-secondary" onclick="closeDrawer()">Cancel</button>
+                <button class="btn btn-success" onclick="saveTask()">Save</button>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<!-- STYLES -->
+<style>
+    table, th, td {
+        border: 1px solid black !important;
+    }
+    table {
+        border-collapse: collapse;
+    }
+
+    .drawer {
+        position: fixed;
+        top: 0;
+        right: -420px;
+        width: 420px;
+        height: 100%;
+        background: white;
+        box-shadow: -2px 0 10px rgba(0,0,0,0.2);
+        transition: right 0.3s;
+        display: flex;
+        flex-direction: column;
+        z-index: 2000;
+    }
+
+    .drawer.open {
+        right: 0;
+    }
+
+    .drawer-header {
+        padding: 15px;
+        border-bottom: 1px solid #ddd;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .drawer-body {
+        flex: 1;
+        overflow-y: auto;
+        padding: 15px;
+    }
+
+    .drawer-footer {
+        padding: 15px;
+        border-top: 1px solid #ddd;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+</style>
+<script>
+    let currentTaskId = null;
+
+    /* ================= INIT ================= */
+    document.addEventListener("DOMContentLoaded", async () => {
+        await loadProjects();
+        await loadUsers();
+        await loadTasks();
+    });
+
+    /* ================= DRAWER ================= */
+
+    window.openCreate = function () {
+        currentTaskId = null;
+
+        clearForm();
+
+        document.getElementById("taskId").value = "";
+        document.getElementById("taskIdDisplay").value = "NEW";
+
+        document.getElementById("drawerTitle").innerText = "Create Task";
+
+        document.getElementById("commentsList").innerHTML = "";
+
+        document.getElementById("drawer").classList.add("open");
+    };
+
+    window.closeDrawer = function () {
+        document.getElementById("drawer").classList.remove("open");
+    };
+
+    /* ================= LOAD DATA ================= */
+
+    async function loadProjects() {
+        const res = await apiFetch("/api/projects");
+        const data = await res.json();
+
+        const select = document.getElementById("project");
+        const filter = document.getElementById("projectFilter");
+
+        select.innerHTML = "";
+        filter.innerHTML = '<option value="">All</option>';
+
+        data.forEach(p => {
+            select.innerHTML += `<option value="${p.id}">${p.name}</option>`;
+            filter.innerHTML += `<option value="${p.id}">${p.name}</option>`;
+        });
+    }
+
+    async function loadUsers() {
+        const res = await apiFetch("/api/users");
+        const users = await res.json();
+
+        const select = document.getElementById("assignee");
+        const filter = document.getElementById("assigneeFilter");
+
+        select.innerHTML = "";
+        filter.innerHTML = '<option value="">All</option>';
+
+        users.forEach(u => {
+            select.innerHTML += `<option value="${u.userId}">${u.userName}</option>`;
+            filter.innerHTML += `<option value="${u.userId}">${u.userName}</option>`;
+        });
+    }
+
+    /* ================= TASKS ================= */
+
+    window.loadTasks = async function () {
+
+        const params = new URLSearchParams();
+
+        const projectId = document.getElementById("projectFilter").value;
+        if (projectId) params.append("projectId", projectId);
+
+        const assigneeId = document.getElementById("assigneeFilter").value;
+        if (assigneeId) params.append("assigneeId", assigneeId);
+
+        const statusOptions = Array.from(
+            document.getElementById("statusFilter").selectedOptions
+        ).map(o => o.value);
+
+        statusOptions.forEach(s => params.append("status", s));
+
+        const title = document.getElementById("titleFilter").value;
+        if (title) params.append("title", title);
+
+        const res = await apiFetch(`/api/tasks/search?${params.toString()}`);
+        const tasks = await res.json();
+
+        const table = document.getElementById("tasksTable");
+        table.innerHTML = "";
+
+        tasks.forEach(t => {
+            table.innerHTML += `
+            <tr>
+                <td>${t.taskId}</td>
+                <td>${t.title}</td>
+                <td>${t.status}</td>
+                <td>${t.project?.name ?? "-"}</td>
+                <td>${t.assignee?.userName ?? "-"}</td>
+                <td>
+                    <button class="btn btn-sm btn-warning" onclick='editTask(${JSON.stringify(t)})'>Edit</button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteTask(${t.taskId})">Delete</button>
+                </td>
+            </tr>
+        `;
+        });
+    };
+
+    window.editTask = function (t) {
+
+        currentTaskId = t.taskId;
+
+        document.getElementById("taskId").value = t.taskId;
+        document.getElementById("taskIdDisplay").value = t.taskId;
+
+        document.getElementById("title").value = t.title;
+        document.getElementById("description").value = t.description;
+        document.getElementById("status").value = t.status;
+        document.getElementById("project").value = t.project?.projectId;
+        document.getElementById("assignee").value = t.assignee?.userId;
+
+        document.getElementById("drawerTitle").innerText = "Edit Task";
+        document.getElementById("drawer").classList.add("open");
+
+        loadComments(currentTaskId);
+    };
+
+    window.deleteTask = async function (id) {
+        if (!confirm("Delete task?")) return;
+
+        await apiFetch(`/api/tasks/${id}`, { method: "DELETE" });
+        loadTasks();
+    };
+
+    window.saveTask = async function () {
+
+        const id = document.getElementById("taskId").value;
+        const projectId = document.getElementById("project").value;
+
+        if (!projectId) {
+            alert("Select project");
+            return;
+        }
+
+        const body = {
+            title: document.getElementById("title").value,
+            description: document.getElementById("description").value,
+            status: document.getElementById("status").value,
+            assigneeId: document.getElementById("assignee").value || null
+        };
+
+        const url = id
+            ? `/api/tasks/${id}`
+            : `/api/tasks/projects/${projectId}`;
+
+        const method = id ? "PUT" : "POST";
+
+        await apiFetch(url, {
+            method,
+            body: JSON.stringify(body)
+        });
+
+        closeDrawer();
+        loadTasks();
+    };
+
+    /* ================= COMMENTS ================= */
+
+    async function loadComments(taskId) {
+        const res = await apiFetch(`/api/tasks/${taskId}/comments`);
+        const comments = await res.json();
+
+        const container = document.getElementById("commentsList");
+        container.innerHTML = "";
+
+        comments.forEach(c => {
+            container.innerHTML += `
+            <div class="border rounded p-2 mb-2">
+                <div><strong>${c.authorName}</strong></div>
+                <div>${c.text}</div>
+                <div class="text-muted" style="font-size:12px;">
+                    ${c.createdAt}
+                </div>
+                <button class="btn btn-sm btn-danger mt-1" onclick="deleteComment(${c.commentId})">
+                    Delete
+                </button>
+            </div>
+        `;
+        });
+    }
+
+    window.addComment = async function () {
+
+        const text = document.getElementById("commentText").value.trim();
+
+        if (!text) {
+            alert("Comment cannot be empty");
+            return;
+        }
+
+        await apiFetch(`/api/tasks/${currentTaskId}/comments`, {
+            method: "POST",
+            body: JSON.stringify({ text })
+        });
+
+        document.getElementById("commentText").value = "";
+        loadComments(currentTaskId);
+    };
+
+    window.deleteComment = async function (commentId) {
+
+        if (!confirm("Delete comment?")) return;
+
+        await apiFetch(`/api/tasks/${currentTaskId}/comments/${commentId}`, {
+            method: "DELETE"
+        });
+
+        loadComments(currentTaskId);
+    };
+
+    /* ================= UTILS ================= */
+
+    function clearForm() {
+        document.getElementById("taskId").value = "";
+        document.getElementById("taskIdDisplay").value = "";
+        document.getElementById("title").value = "";
+        document.getElementById("description").value = "";
+    }
+
+</script>
+</body>
+</html>

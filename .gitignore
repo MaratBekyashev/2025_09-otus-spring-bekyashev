@@ -37,4 +37,4 @@ out
 *.ipr
 *.idea
 **/target/
-**/logs/
+**/logs/app.log.*
