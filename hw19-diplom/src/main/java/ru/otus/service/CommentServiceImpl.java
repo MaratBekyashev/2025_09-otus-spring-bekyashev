@@ -123,7 +123,7 @@ public class CommentServiceImpl implements CommentService{
         return TaskCommentDto.toDtoList(comments);
     }
 
-    private void fallbackDeleteTaskComments(Long taskId,
+    private List<TaskCommentDto> fallbackDeleteTaskComments(Long taskId,
                                             Throwable ex) throws ServiceNotAvailableException {
         log.error("Fallback triggered for deleteTaskComments(taskId={}", taskId, ex);
         throw new ServiceNotAvailableException("Database is temporarily unavailable");

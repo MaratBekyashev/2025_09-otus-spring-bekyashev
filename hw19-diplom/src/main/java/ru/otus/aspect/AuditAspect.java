@@ -26,23 +26,27 @@ public class AuditAspect {
     public void audit(JoinPoint joinPoint,
                       Auditable auditable,
                       Object result) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication == null) {
+                return;
+            }
+            List<Long> entityIdList = extractIdentifiableEntityId(result);
 
-        if (authentication == null) {
-            return;
+            if (entityIdList == null) {
+                String paramName = auditable.idFieldName();
+                entityIdList = Collections.singletonList(extractIdFromMethodArgs(joinPoint, paramName));
+            }
+
+            var userDetails = (UserDetails) authentication.getPrincipal();
+            String userLogin = userDetails.getUsername();
+            for (Long entityId : entityIdList) {
+                auditService.log(auditable.entity().name(), entityId, auditable.action().name(), userLogin);
+            }
         }
-        List<Long> entityIdList = extractIdentifiableEntityId(result);
-
-        if (entityIdList == null) {
-            String paramName = auditable.idFieldName();
-            entityIdList = Collections.singletonList(extractIdFromMethodArgs(joinPoint, paramName));
-        }
-
-        var userDetails = (UserDetails) authentication.getPrincipal();
-        String userLogin = userDetails.getUsername();
-        for (Long entityId: entityIdList) {
-            auditService.log(auditable.entity().name(), entityId, auditable.action().name(), userLogin);
+        catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

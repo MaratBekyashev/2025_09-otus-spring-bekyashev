@@ -62,7 +62,7 @@ public class ProjectServiceImpl implements ProjectService{
     @Retry(name = "dbRetry")
     @CircuitBreaker(name = "dbCircuitBreaker", fallbackMethod = "fallbackFindAllProjects")
     public List<ProjectDto> findAllProjects() {
-        List<Project> dataList = projectRepository.findAll();
+        List<Project> dataList = projectRepository.findAllWithOwner();
         var resultList = ProjectDto.toDtoList(dataList);
         return resultList;
     }

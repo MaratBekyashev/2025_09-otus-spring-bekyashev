@@ -2,6 +2,7 @@ package ru.otus.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,12 +22,14 @@ import java.util.List;
 @RequiredArgsConstructor
 @Validated
 @RequestMapping("/api/tasks/{taskId}/comments")
+@Slf4j
 public class CommentController {
 
     private final CommentService commentService;
 
     @GetMapping
     public ResponseEntity<List<TaskCommentDto>> getComments(@PathVariable Long taskId) {
+        log.info("method getComments called. taskId={}", taskId);
         var response=  commentService.getTaskComments(taskId);
         return ResponseEntity.ok(response);
     }
@@ -34,12 +37,14 @@ public class CommentController {
     @PostMapping
     public ResponseEntity<TaskCommentDto> createComment(@PathVariable Long taskId,
                                                         @RequestBody @Valid CreateCommentRequest request) {
+        log.info("method createComment called. taskId={}, params={}", taskId, request);
         var response = commentService.createComment(taskId, request.text());
         return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{commentId}")
-    public void createComment(@PathVariable Long commentId) {
+    public void deleteComment(@PathVariable Long commentId) {
+        log.info("method deleteComment called. commentId={}", commentId);
         commentService.deleteComment(commentId);
     }
 

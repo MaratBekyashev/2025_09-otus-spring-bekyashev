@@ -113,7 +113,7 @@ public class TaskServiceImpl implements TaskService {
         return result;
     }
 
-    private List<TaskResponseDto> fallbackGetTask(Long taskId,
+    private TaskResponseDto fallbackGetTask(Long taskId,
                                                   Throwable ex) throws ServiceNotAvailableException {
         if (ex instanceof CommonBusinessException e) {
             throw e;
@@ -165,7 +165,7 @@ public class TaskServiceImpl implements TaskService {
         return result;
     }
 
-    private List<TaskResponseDto> fallbackCreateTask(Long projectId,
+    private TaskResponseDto fallbackCreateTask(Long projectId,
                                                      String title,
                                                      String description,
                                                      TaskPriorityEnum priority,
@@ -222,7 +222,7 @@ public class TaskServiceImpl implements TaskService {
         return TaskResponseDto.toDto(task);
     }
 
-    private List<TaskResponseDto> fallbackUpdateTask(Long taskId,
+    private TaskResponseDto fallbackUpdateTask(Long taskId,
                                                      String title,
                                                      String description,
                                                      TaskStatusEnum status,
@@ -251,8 +251,8 @@ public class TaskServiceImpl implements TaskService {
         this.tasksCreated.increment(-1);
     }
 
-    private List<TaskResponseDto> fallbackDeleteTask(Long taskId,
-                                                     Throwable ex) throws ServiceNotAvailableException {
+    private void fallbackDeleteTask(Long taskId,
+                                    Throwable ex) throws ServiceNotAvailableException {
         if (ex instanceof CommonBusinessException e) {
             throw e;
         }

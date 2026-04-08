@@ -1,9 +1,10 @@
 package ru.otus.service;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import ru.otus.entity.AuditLog;
 import ru.otus.repository.AuditLogRepository;
 import java.time.LocalDateTime;
@@ -16,7 +17,7 @@ public class AuditServiceImpl implements AuditService {
     private final AuditLogRepository auditRepo;
 
     @Override
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void log(String entityName,
                     Long entityId,
                     String action,
@@ -31,5 +32,5 @@ public class AuditServiceImpl implements AuditService {
 
         auditRepo.save(auditRow);
     }
-    
+
 }

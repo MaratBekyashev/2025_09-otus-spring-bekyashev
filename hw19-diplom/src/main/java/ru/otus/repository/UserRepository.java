@@ -14,7 +14,7 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
     @EntityGraph("user-with-roles-entity-graph")
     @Query("select u from User u")
     List<User> getAllUsers();
-    
+
     @EntityGraph("user-with-roles-entity-graph")
     List<User> findAll(Specification<User> spec);
 

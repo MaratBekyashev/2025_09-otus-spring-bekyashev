@@ -35,18 +35,21 @@ public class ProjectController {
 
     @GetMapping
     public ResponseEntity<List<ProjectDto>> findAllProjects(){
+        log.info("method findAllProjects called");
         var resultList = projectService.findAllProjects();
         return ResponseEntity.ok(resultList);
     }
 
     @GetMapping("/{projectId}")
     public ResponseEntity<ProjectDto> findProjectById(@PathVariable("projectId") Long projectId) {
+        log.info("method findProjectById called. projectId={}", projectId);
         ProjectDto project = projectService.findProject(projectId);
         return ResponseEntity.ok(project);
     }
 
     @PostMapping
     public ResponseEntity<ProjectDto> createProject(@RequestBody @Valid CreateProjectRequest request) {
+        log.info("method createProject called. params={}", request);
         var createProjectDto = CreateProjectDto.builder()
                 .name(request.name())
                 .description(request.description())
@@ -58,6 +61,8 @@ public class ProjectController {
     @PutMapping("/{projectId}")
     public ResponseEntity<ProjectDto> editProject(@PathVariable("projectId") Long projectId,
                                                   @RequestBody UpdateProjectRequest request) {
+        log.info("method editProject called. projectId={}, params={}", projectId, request);
+
         var editProjectDto = EditProjectDto.builder()
                 .projectId(projectId)
                 .name(request.name())
@@ -69,11 +74,13 @@ public class ProjectController {
 
     @DeleteMapping("/{projectId}")
     public void deleteProject(@PathVariable("projectId") Long projectId) {
+        log.info("method deleteProject called. projectId={}", projectId);
         projectService.deleteProject(projectId);
     }
 
     @GetMapping("/{projectId}/members")
     public ResponseEntity<List<ProjectMemberDto>> findAllProjectMembers(@PathVariable("projectId") Long projectId){
+        log.info("method findAllProjectMembers called. projectId={}", projectId);
         List<ProjectMemberDto> resultList = projectService.findAllProjectMembers(projectId);
         return ResponseEntity.ok(resultList);
     }
@@ -81,6 +88,7 @@ public class ProjectController {
     @GetMapping("/{projectId}/members/{memberId}")
     public ResponseEntity<ProjectMemberDto> findProjectMember(@PathVariable("projectId") Long projectId,
                                                               @PathVariable("memberId") Long userId){
+        log.info("method findProjectMember called. projectId={}, userId={}", projectId, userId);
         ProjectMemberDto result = projectService.findProjectMember(projectId, userId);
         return ResponseEntity.ok(result);
     }
@@ -88,6 +96,7 @@ public class ProjectController {
     @PostMapping("/{projectId}/members")
     public ProjectMemberDto addProjectMember(@PathVariable Long projectId,
                                              @RequestBody CreateProjectMemberDto member) {
+        log.info("method addProjectMember called. projectId={}, params={}", projectId, member);
         var createdProjectMember = projectService.addProjectMember(projectId, member);
         return createdProjectMember;
     }
@@ -95,6 +104,7 @@ public class ProjectController {
     @PutMapping("/{projectId}/members")
     public ProjectMemberDto editProjectMember(@PathVariable("projectId") Long projectId,
                                               @RequestBody EditProjectMemberDto projectMemberDto) {
+        log.info("method editProjectMember called. projectId={}, params={}", projectId, projectMemberDto);
         ProjectMemberDto result = projectService.editProjectMember(projectId, projectMemberDto);
         return result;
     }
@@ -102,6 +112,7 @@ public class ProjectController {
     @DeleteMapping("/{projectId}/members/{userId}")
     public void deleteProjectMember(@PathVariable("projectId") Long projectId,
                                     @PathVariable("userId") Long userId) {
+        log.info("method deleteProjectMember called. projectId={}", projectId);
         projectService.deleteProjectMember(projectId, userId);
     }
 

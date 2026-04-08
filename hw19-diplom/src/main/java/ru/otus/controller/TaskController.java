@@ -1,6 +1,7 @@
 package ru.otus.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import jakarta.validation.Valid;
@@ -27,6 +28,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Validated
 @RequestMapping("/api/tasks")
+@Slf4j
 public class TaskController {
 
     private final TaskService taskService;
@@ -39,6 +41,8 @@ public class TaskController {
                                                              @RequestParam(required = false) String title,
                                                              @RequestParam(required = false) LocalDate dueDateFrom,
                                                              @RequestParam(required = false) LocalDate dueDateTo) {
+        log.info("method searchTasks called. projectId={}, assigneeId={},status={}, priority={},title={}, "+
+                 "dueDateFrom={},dueDateTo={}", projectId, assigneeId, status, priority, title, dueDateFrom, dueDateTo);
         TaskSearchFilter filter = new TaskSearchFilter(projectId, assigneeId, status, priority, title, dueDateFrom, dueDateTo);
         var response = taskService.taskSearch(filter);
         return ResponseEntity.ok(response);
@@ -46,18 +50,21 @@ public class TaskController {
 
     @GetMapping("/projects/{projectId}")
     public ResponseEntity<List<TaskResponseDto>> getTasks(@PathVariable("projectId") Long projectId) {
+        log.info("method getTasks called. projectId={}", projectId);
         var response = taskService.getProjectTasks(projectId);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{taskId}")
     public TaskResponseDto getTask(@PathVariable Long taskId) {
+        log.info("method getTask called. taskId={}", taskId);
         return taskService.getTask(taskId);
     }
 
     @PostMapping("/projects/{projectId}")
     public ResponseEntity<TaskResponseDto> createTask(@PathVariable("projectId") Long projectId,
                                                      @RequestBody @Valid CreateTaskRequest request) {
+        log.info("method createTask called. projectId={}, params={}", projectId, request);
         var response = taskService.createTask(
                 projectId,
                 request.title(),
@@ -71,6 +78,7 @@ public class TaskController {
     @PutMapping("/{taskId}")
     public ResponseEntity<TaskResponseDto> updateTask(@PathVariable("taskId") Long taskId,
                                       @RequestBody UpdateTaskRequest request) {
+        log.info("method updateTask called. taskId={}, params={}", taskId, request);
         var response = taskService.updateTask(
                 taskId,
                 request.title(),
@@ -85,6 +93,7 @@ public class TaskController {
 
     @DeleteMapping("/{taskId}")
     public void deleteTask(@PathVariable Long taskId) {
+        log.info("method deleteTask called. taskId={}", taskId);
         taskService.deleteTask(taskId);
     }
 }
